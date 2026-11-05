@@ -1,0 +1,40 @@
+rules_version = '2';
+
+// ============================================================
+//  Regras do Firestore para o Mural Interativo
+//
+//  Como publicar:
+//  Console Firebase > Firestore Database > Regras >
+//  cole este conteúdo > Publicar.
+//
+//  Administrador = conta helton020@gmail.com (Authentication > Users).
+//  Visitantes anônimos podem apenas reagir (somar 1 like).
+// ============================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email != null
+        && request.auth.token.email.lower() == 'helton020@gmail.com';
+    }
+
+    // Cartões do mural: leitura pública, escrita apenas do admin.
+    // Reações (likes) podem ser enviadas por qualquer visitante autenticado,
+    // desde que alterem somente o campo "likes" e somem exatamente 1.
+    match /artifacts/{appId}/public/data/mural_cards/{cardId} {
+      allow read: if true;
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin()
+        || (request.auth != null
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes'])
+            && request.resource.data.likes == resource.data.likes + 1);
+    }
+
+    // Nega qualquer outro acesso por padrão.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

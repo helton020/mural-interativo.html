@@ -73,9 +73,9 @@
         <div>
           <h1 class="font-bold text-lg leading-tight tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
             Mural Interativo
-            <span id="sync-indicator" class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-semibold flex items-center gap-1">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
-              Tempo Real
+            <span id="sync-indicator" class="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 font-semibold flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+              Conectando
             </span>
           </h1>
           <p class="text-xs text-slate-500 dark:text-slate-400">Quadros, Avisos & Reações Conectadas</p>
@@ -212,7 +212,7 @@
       </div>
       <div class="text-xs text-slate-400 flex items-center gap-1">
         <i class="fa-solid fa-bolt text-amber-400"></i>
-        <span>Sincronização Ativa</span>
+        <span id="sync-detail">Conectando ao servidor...</span>
       </div>
     </div>
 
@@ -240,7 +240,8 @@
     <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-2">
       <p>© Mural Interativo Dinâmico - Sincronizado para todos os visitantes simultaneamente.</p>
       <p class="flex items-center gap-1">
-        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Firebase Realtime Sync On
+        <span id="footer-dot" class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span id="footer-sync">Conectando...</span>
       </p>
     </div>
   </footer>
@@ -248,117 +249,164 @@
   <!-- SCRIPT FIREBASE EM TEMPO REAL E LÓGICA DO MURAL -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, doc, setDoc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getAuth, signInAnonymously, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, doc, setDoc, updateDoc, deleteDoc, onSnapshot, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     // --- CONFIGURAÇÃO FIREBASE E VARIÁVEIS GLOBAIS ---
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'mural-interativo-default';
-    
-    // Configuração Padrão de Projeto Público para Funcionalidade Imediata
-    const firebaseConfig = typeof __firebase_config !== 'undefined' 
-      ? JSON.parse(__firebase_config) 
-      : {
-          apiKey: "AIzaSyDemoConfigMuralKeyForPublicUse123",
-          authDomain: "mural-interativo-app.firebaseapp.com",
-          projectId: "mural-interativo-app",
-          storageBucket: "mural-interativo-app.appspot.com",
-          messagingSenderId: "1234567890",
-          appId: "1:1234567890:web:abcdef123456"
-        };
 
-    let app, auth, db;
+    // ============================================================
+    //  CONFIGURAÇÃO DO PROJETO FIREBASE
+    // ============================================================
+    const firebaseConfig = {
+      apiKey: "AIzaSyBJtKSUXYBljL3fdVKVYywoD_SPc28lKCo",
+      authDomain: "mural-interativo-7de13.firebaseapp.com",
+      projectId: "mural-interativo-7de13",
+      storageBucket: "mural-interativo-7de13.firebasestorage.app",
+      messagingSenderId: "466500240752",
+      appId: "1:466500240752:web:ed0e3e4114d4c138e03bb5"
+    };
+
+    // E-mail da única conta com permissão de administrador
+    const ADMIN_EMAIL = "helton020@gmail.com";
+
+    // Visitantes entram anonimamente e só podem reagir aos cards.
+    const FIREBASE_CONFIGURADO =
+      Boolean(firebaseConfig.apiKey) &&
+      !firebaseConfig.apiKey.startsWith('COLE_') &&
+      !firebaseConfig.projectId.startsWith('COLE_');
+
+    let app = null, auth = null, db = null;
     let currentUser = null;
     let globalCards = [];
     let isAdmin = false;
     let selectedCategoryFilter = 'ALL';
     let currentColor = 'blue';
-    const ADMIN_PASSWORD_DEFAULT = 'admin123';
+    let unsubscribeCards = null;
 
-    // Senhas salvas localmente
-    let adminPassword = localStorage.getItem('mural_admin_password') || ADMIN_PASSWORD_DEFAULT;
-
-    // Inicialização do Firebase
-    try {
-      app = initializeApp(firebaseConfig);
-      auth = getAuth(app);
-      db = getFirestore(app);
-    } catch (e) {
-      console.warn("Firebase inicializado em modo fallback", e);
-    }
-
-    // Coleção pública Firestore seguindo a regra obrigatória da plataforma
+    // Coleção pública do Firestore
     const getCardsCollection = () => collection(db, 'artifacts', appId, 'public', 'data', 'mural_cards');
     const getCardDoc = (id) => doc(db, 'artifacts', appId, 'public', 'data', 'mural_cards', id);
 
-    // --- AUTENTICAÇÃO E ESCUTA DE DADOS EM TEMPO REAL ---
-    async function initFirebaseSync() {
-      try {
-        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-          await signInWithCustomToken(auth, __initial_auth_token);
-        } else {
-          await signInAnonymously(auth);
+    // --- STATUS DE SINCRONIZAÇÃO ---
+    function setSyncStatus(mode) {
+      const status = {
+        online: {
+          classes: 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300',
+          dot: 'bg-emerald-500 animate-ping',
+          text: 'Tempo Real',
+          detail: 'Sincronização ativa — todos veem as mesmas publicações',
+          footerDot: 'bg-emerald-500 animate-pulse',
+          footer: 'Conectado ao Firebase em tempo real'
+        },
+        connecting: {
+          classes: 'bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300',
+          dot: 'bg-amber-500 animate-pulse',
+          text: 'Conectando',
+          detail: 'Conectando ao servidor...',
+          footerDot: 'bg-amber-500 animate-pulse',
+          footer: 'Conectando ao Firebase...'
+        },
+        local: {
+          classes: 'bg-rose-100 dark:bg-rose-900/50 text-rose-600 dark:text-rose-400',
+          dot: 'bg-rose-500',
+          text: 'Modo Local',
+          detail: 'Sem servidor — os cards ficam apenas neste navegador',
+          footerDot: 'bg-rose-500',
+          footer: 'Modo local — dados apenas neste navegador'
         }
-      } catch (err) {
-        console.warn("Autenticação anônima temporariamente offline, usando fallback local", err);
+      }[mode];
+
+      if (!status) return;
+
+      const indicator = document.getElementById('sync-indicator');
+      const detail = document.getElementById('sync-detail');
+      const footerDot = document.getElementById('footer-dot');
+      const footerSync = document.getElementById('footer-sync');
+
+      if (indicator) {
+        indicator.className = `text-[10px] px-2 py-0.5 rounded-full font-semibold flex items-center gap-1 ${status.classes}`;
+        indicator.innerHTML = `<span class="w-1.5 h-1.5 rounded-full ${status.dot}"></span>${status.text}`;
       }
+      if (detail) detail.textContent = status.detail;
+      if (footerDot) footerDot.className = `w-2 h-2 rounded-full ${status.footerDot}`;
+      if (footerSync) footerSync.textContent = status.footer;
+    }
+
+    // --- AUTENTICAÇÃO E ESCUTA DE DADOS EM TEMPO REAL ---
+    function initFirebase() {
+      if (!FIREBASE_CONFIGURADO) {
+        console.warn('Firebase não configurado: usando modo local.');
+        setSyncStatus('local');
+        loadFallbackLocalCards();
+        showToast('Firebase não configurado. O mural está em modo local (só neste navegador).', 'warning');
+        return;
+      }
+
+      try {
+        app = initializeApp(firebaseConfig);
+        auth = getAuth(app);
+        db = getFirestore(app);
+      } catch (err) {
+        console.error('Falha ao iniciar o Firebase:', err);
+        setSyncStatus('local');
+        loadFallbackLocalCards();
+        showToast('Erro ao iniciar o Firebase. Usando modo local.', 'danger');
+        return;
+      }
+
+      setSyncStatus('connecting');
+      subscribeToCards();
 
       onAuthStateChanged(auth, (user) => {
         currentUser = user;
-        if (user && db) {
-          // Escuta alterações na nuvem em Tempo Real
-          onSnapshot(getCardsCollection(), (snapshot) => {
-            const fetched = [];
-            snapshot.forEach((docSnap) => {
-              fetched.push({ id: docSnap.id, ...docSnap.data() });
-            });
-            
-            // Se o banco estiver vazio pela primeira vez, alimenta com exemplos
-            if (fetched.length === 0) {
-              seedDefaultCards();
-            } else {
-              globalCards = fetched;
-              localStorage.setItem('mural_interativo_backup', JSON.stringify(globalCards));
-              renderCards();
-            }
-          }, (error) => {
-            console.error("Erro na escuta Firestore:", error);
-            loadFallbackLocalCards();
+        const isAdminAccount = Boolean(user && user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase());
+
+        if (user && user.email && !isAdminAccount) {
+          showToast('Esta conta não tem permissão de administrador.', 'danger');
+          signOut(auth);
+          return;
+        }
+
+        const wasAdmin = isAdmin;
+        isAdmin = isAdminAccount;
+        updateAdminUI();
+
+        if (isAdmin && !wasAdmin) showToast('Bem-vindo, administrador!', 'success');
+
+        // Visitantes entram anonimamente para poder reagir aos cards.
+        // Só faz isso quando não há sessão salva (admin continua logado ao recarregar).
+        if (!user) {
+          signInAnonymously(auth).catch((err) => {
+            console.warn('Login anônimo indisponível (reações desativadas):', err);
           });
-        } else {
-          loadFallbackLocalCards();
         }
       });
+
+      window.addEventListener('offline', () => setSyncStatus('local'));
+      window.addEventListener('online', () => setSyncStatus('connecting'));
     }
 
-    // Inicializar cartões de exemplo se for um mural novo
-    async function seedDefaultCards() {
-      const defaultCards = [
-        {
-          title: 'Bem-vindo ao Mural Interativo! 🎉',
-          category: 'Informações',
-          author: 'Administrador',
-          content: 'Este é o novo mural digital conectado em tempo real. Qualquer postagem ou reação é atualizada para todos os leitores sem recarregar a página!',
-          color: 'blue',
-          pinned: true,
-          likes: 5,
-          createdAt: new Date().toISOString()
-        },
-        {
-          title: 'Aviso de Manutenção',
-          category: 'Avisos',
-          author: 'Equipe de T.I.',
-          content: 'Lembrete: Atualizações do sistema agendadas para esta sexta-feira às 20h.',
-          color: 'rose',
-          pinned: false,
-          likes: 2,
-          createdAt: new Date(Date.now() - 3600000 * 2).toISOString()
-        }
-      ];
+    function subscribeToCards() {
+      if (unsubscribeCards || !db) return;
 
-      for (const card of defaultCards) {
-        const newRef = doc(getCardsCollection());
-        await setDoc(newRef, { ...card, id: newRef.id });
-      }
+      unsubscribeCards = onSnapshot(
+        getCardsCollection(),
+        (snapshot) => {
+          globalCards = snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
+          localStorage.setItem('mural_interativo_backup', JSON.stringify(globalCards));
+          setSyncStatus('online');
+          renderCards();
+        },
+        (error) => {
+          console.error('Erro na escuta do Firestore:', error);
+          setSyncStatus('local');
+          loadFallbackLocalCards();
+          if (error.code === 'permission-denied') {
+            showToast('Sem permissão de leitura no Firestore. Confira as regras.', 'danger');
+          }
+        }
+      );
     }
 
     function loadFallbackLocalCards() {
@@ -367,41 +415,85 @@
       renderCards();
     }
 
-    // --- MODO ADMIN COM SENHA ---
+    // --- MODO ADMIN COM FIREBASE AUTH ---
     window.toggleAdminMode = function() {
-      if (!isAdmin) {
-        openCustomModal(`
-          <div class="text-center">
-            <div class="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center mx-auto mb-3 text-xl">
-              <i class="fa-solid fa-lock"></i>
-            </div>
-            <h3 class="text-lg font-bold text-slate-800 dark:text-white">Autenticação do Administrador</h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-4">Insira a senha de acesso (Padrão: <code class="bg-slate-100 dark:bg-slate-700 px-1.5 py-0.5 rounded text-blue-600 dark:text-blue-400">admin123</code>)</p>
-            <input type="password" id="admin-pass-input" placeholder="Digite a senha..." class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm mb-4 focus:ring-2 focus:ring-blue-500" />
-            <div class="flex justify-center gap-3">
-              <button onclick="closeCustomModal()" class="px-4 py-2 rounded-xl text-xs font-semibold border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">Cancelar</button>
-              <button onclick="verifyAdminPass()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 shadow-md">Entrar</button>
-            </div>
+      if (isAdmin) {
+        adminLogout();
+        return;
+      }
+
+      if (!FIREBASE_CONFIGURADO) {
+        showToast('Configure o Firebase para habilitar o modo administrador.', 'warning');
+        return;
+      }
+
+      openCustomModal(`
+        <div class="text-center">
+          <div class="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center mx-auto mb-3 text-xl">
+            <i class="fa-solid fa-user-shield"></i>
           </div>
-        `);
-      } else {
-        isAdmin = false;
-        updateAdminUI();
-        showToast('Modo Administrador encerrado.', 'info');
+          <h3 class="text-lg font-bold text-slate-800 dark:text-white">Login do Administrador</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-4">Use a conta criada em <strong>Authentication &gt; Users</strong>.</p>
+          <input type="email" id="admin-email-input" autocomplete="username" placeholder="E-mail do administrador" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm mb-2 focus:ring-2 focus:ring-blue-500" />
+          <input type="password" id="admin-pass-input" autocomplete="current-password" placeholder="Senha" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm mb-2 focus:ring-2 focus:ring-blue-500" />
+          <p id="admin-login-error" class="hidden text-xs text-rose-600 dark:text-rose-400 mb-2"></p>
+          <div class="flex justify-center gap-3 mt-2">
+            <button onclick="closeCustomModal()" class="px-4 py-2 rounded-xl text-xs font-semibold border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">Cancelar</button>
+            <button onclick="verifyAdminLogin()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 shadow-md">Entrar</button>
+          </div>
+        </div>
+      `);
+    };
+
+    window.verifyAdminLogin = async function() {
+      const email = document.getElementById('admin-email-input')?.value.trim();
+      const password = document.getElementById('admin-pass-input')?.value || '';
+      const errorEl = document.getElementById('admin-login-error');
+
+      const showError = (message) => {
+        if (!errorEl) return;
+        errorEl.textContent = message;
+        errorEl.classList.remove('hidden');
+      };
+
+      if (!email || !password) {
+        showError('Preencha e-mail e senha.');
+        return;
+      }
+      if (!auth) {
+        showError('Firebase não inicializado. Recarregue a página.');
+        return;
+      }
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        closeCustomModal();
+      } catch (err) {
+        console.error('Erro no login admin:', err);
+        const messages = {
+          'auth/invalid-credential': 'E-mail ou senha incorretos.',
+          'auth/invalid-email': 'E-mail inválido.',
+          'auth/user-not-found': 'E-mail ou senha incorretos.',
+          'auth/wrong-password': 'E-mail ou senha incorretos.',
+          'auth/user-disabled': 'Esta conta está desativada.',
+          'auth/too-many-requests': 'Muitas tentativas. Aguarde alguns minutos.',
+          'auth/network-request-failed': 'Falha de rede. Verifique sua conexão.'
+        };
+        showError(messages[err.code] || 'Não foi possível entrar. Tente novamente.');
       }
     };
 
-    window.verifyAdminPass = function() {
-      const input = document.getElementById('admin-pass-input')?.value;
-      if (input === adminPassword) {
-        isAdmin = true;
-        closeCustomModal();
-        updateAdminUI();
-        showToast('Acesso de Administrador concedido!', 'success');
-      } else {
-        showToast('Senha incorreta!', 'danger');
+    async function adminLogout() {
+      try {
+        await signOut(auth);
+      } catch (err) {
+        console.warn('Erro ao sair do admin:', err);
       }
-    };
+      isAdmin = false;
+      updateAdminUI();
+      showToast('Modo Administrador encerrado.', 'info');
+      // O onAuthStateChanged detecta a sessão nula e entra como visitante anônimo
+    }
 
     function updateAdminUI() {
       const panel = document.getElementById('admin-tools-panel');
@@ -451,8 +543,13 @@
         createdAt: new Date().toISOString()
       };
 
+      if (FIREBASE_CONFIGURADO && !isAdmin) {
+        showToast('Apenas o administrador pode publicar.', 'warning');
+        return;
+      }
+
       try {
-        if (currentUser && db) {
+        if (FIREBASE_CONFIGURADO) {
           const docRef = doc(getCardsCollection());
           await setDoc(docRef, { ...newCard, id: docRef.id });
         } else {
@@ -467,7 +564,7 @@
         showToast('Card publicado para todos os usuários!', 'success');
       } catch (err) {
         console.error("Erro ao salvar card:", err);
-        showToast('Erro ao publicar o card.', 'danger');
+        showToast('Erro ao publicar o card. Verifique sua permissão.', 'danger');
       }
     };
 
@@ -475,19 +572,23 @@
       const card = globalCards.find(c => c.id === id);
       if (!card) return;
 
-      const newLikes = (card.likes || 0) + 1;
-
       try {
-        if (currentUser && db) {
-          await updateDoc(getCardDoc(id), { likes: newLikes });
+        if (FIREBASE_CONFIGURADO) {
+          if (!currentUser) {
+            showToast('Aguarde a conexão para reagir.', 'warning');
+            return;
+          }
+          // increment() evita perder reações quando várias pessoas reagem juntas
+          await updateDoc(getCardDoc(id), { likes: increment(1) });
         } else {
-          card.likes = newLikes;
+          card.likes = (card.likes || 0) + 1;
           localStorage.setItem('mural_interativo_backup', JSON.stringify(globalCards));
           renderCards();
         }
         showToast('Reação enviada!', 'success');
       } catch (e) {
         console.error("Erro ao reagir:", e);
+        showToast('Não foi possível reagir.', 'danger');
       }
     };
 
@@ -509,7 +610,7 @@
 
     window.confirmDeleteCard = async function(id) {
       try {
-        if (currentUser && db) {
+        if (FIREBASE_CONFIGURADO) {
           await deleteDoc(getCardDoc(id));
         } else {
           globalCards = globalCards.filter(c => c.id !== id);
@@ -529,7 +630,7 @@
       if (!card) return;
 
       try {
-        if (currentUser && db) {
+        if (FIREBASE_CONFIGURADO) {
           await updateDoc(getCardDoc(id), { pinned: !card.pinned });
         } else {
           card.pinned = !card.pinned;
@@ -587,7 +688,7 @@
       const content = document.getElementById('edit-content').value.trim();
 
       try {
-        if (currentUser && db) {
+        if (FIREBASE_CONFIGURADO) {
           await updateDoc(getCardDoc(id), { title, category, author, content });
         } else {
           const card = globalCards.find(c => c.id === id);
@@ -779,11 +880,21 @@
         try {
           const imported = JSON.parse(e.target.result);
           if (Array.isArray(imported)) {
-            for (const item of imported) {
-              const docRef = doc(getCardsCollection());
-              await setDoc(docRef, { ...item, id: docRef.id });
+            if (FIREBASE_CONFIGURADO && !isAdmin) {
+              showToast('Apenas o administrador pode importar.', 'warning');
+              return;
             }
-            showToast('Dados importados com sucesso para o banco!', 'success');
+            if (FIREBASE_CONFIGURADO) {
+              for (const item of imported) {
+                const docRef = doc(getCardsCollection());
+                await setDoc(docRef, { ...item, id: docRef.id });
+              }
+            } else {
+              globalCards = [...imported, ...globalCards];
+              localStorage.setItem('mural_interativo_backup', JSON.stringify(globalCards));
+              renderCards();
+            }
+            showToast('Dados importados com sucesso!', 'success');
           }
         } catch (err) {
           showToast('Erro ao importar JSON.', 'danger');
@@ -880,7 +991,7 @@
       } else {
         document.documentElement.classList.remove('dark');
       }
-      initFirebaseSync();
+      initFirebase();
     };
   </script>
 </body>
