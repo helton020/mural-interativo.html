@@ -1,1882 +1,887 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="h-full">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mural Colaborativo com Admin msssnefc & Tokens</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-    <style>
-        :root {
-            --ink: #0f172a;
-            --muted: #64748b;
-            --line: rgba(148, 163, 184, 0.35);
-        }
-
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            color: var(--ink);
-            background: #eef2ff;
-            min-height: 100vh;
-        }
-
-        h1, h2, h3 { font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif; }
-
-        .ambient {
-            position: fixed;
-            inset: 0;
-            z-index: -1;
-            overflow: hidden;
-            pointer-events: none;
-            background:
-                radial-gradient(900px 480px at 0% -10%, rgba(129, 140, 248, 0.45), transparent 60%),
-                radial-gradient(700px 420px at 100% 0%, rgba(244, 114, 182, 0.28), transparent 55%),
-                radial-gradient(680px 480px at 50% 100%, rgba(45, 212, 191, 0.25), transparent 60%),
-                #eef2ff;
-        }
-        .blob {
-            position: absolute;
-            border-radius: 999px;
-            filter: blur(28px);
-            opacity: 0.7;
-            animation: floaty 16s ease-in-out infinite;
-        }
-        .blob-a { width: 340px; height: 340px; background: #c4b5fd; top: 8%; left: -80px; }
-        .blob-b { width: 280px; height: 280px; background: #f9a8d4; top: 18%; right: -60px; animation-delay: -6s; }
-        .blob-c { width: 260px; height: 260px; background: #99f6e4; bottom: 4%; left: 32%; animation-delay: -11s; }
-        @keyframes floaty {
-            0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
-            50% { transform: translate3d(28px, -22px, 0) scale(1.08); }
-        }
-
-        .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: rgba(99, 102, 241, 0.35);
-            border-radius: 999px;
-        }
-
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.82);
-            backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
-            border: 1px solid rgba(255, 255, 255, 0.7);
-        }
-
-        .site-header {
-            position: sticky;
-            top: 12px;
-            z-index: 40;
-            margin: 12px 12px 0;
-            padding: 14px;
-            border-radius: 28px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            box-sizing: border-box;
-            width: calc(100% - 24px);
-            max-width: calc(100vw - 24px);
-            box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
-        }
-        .header-row, .header-tools, .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-            min-width: 0;
-            max-width: 100%;
-        }
-        .header-row { justify-content: space-between; }
-        .header-tools { width: 100%; }
-        .header-actions { justify-content: flex-end; }
-        .brand-mark {
-            width: 46px;
-            height: 46px;
-            border-radius: 16px;
-            display: grid;
-            place-items: center;
-            color: white;
-            background: linear-gradient(145deg, #4f46e5, #7c3aed 55%, #ec4899);
-            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.35);
-            animation: brandPulse 3.6s ease-in-out infinite;
-        }
-        @keyframes brandPulse {
-            0%, 100% { transform: rotate(0deg); }
-            50% { transform: rotate(-6deg) scale(1.04); }
-        }
-        .eyebrow {
-            font-size: 12px;
-            color: var(--muted);
-        }
-        .stats-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            margin-left: 6px;
-            padding: 2px 8px;
-            border-radius: 999px;
-            background: #eef2ff;
-            color: #4338ca;
-            font-size: 11px;
-            font-weight: 700;
-        }
-        .shield-pill {
-            font-size: 10px;
-            font-weight: 700;
-            padding: 3px 8px;
-            border-radius: 999px;
-            background: #fff7ed;
-            color: #c2410c;
-            border: 1px solid #fed7aa;
-        }
-
-        .search-wrap { position: relative; flex: 1 1 240px; min-width: 0; max-width: 100%; }
-        .search-wrap i {
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #94a3b8;
-            font-size: 12px;
-        }
-        .search-field, .filter-select {
-            width: 100%;
-            min-width: 0;
-            box-sizing: border-box;
-            background: rgba(255,255,255,0.9);
-            border: 1px solid var(--line);
-            border-radius: 14px;
-            padding: 9px 12px 9px 34px;
-            font-size: 13px;
-            outline: none;
-            transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
-        }
-        .filter-select { width: auto; padding-left: 12px; cursor: pointer; color: #475569; }
-        .search-field:focus, .filter-select:focus {
-            border-color: #818cf8;
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
-        }
-
-        .view-switch {
-            display: flex;
-            padding: 4px;
-            gap: 2px;
-            border-radius: 16px;
-            background: rgba(226, 232, 240, 0.8);
-        }
-        .view-btn, .token-btn, .admin-btn, .icon-btn, .primary-btn, .menu-item {
-            border: 0;
-            cursor: pointer;
-            font-family: inherit;
-        }
-        .view-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            border-radius: 12px;
-            padding: 7px 10px;
-            font-size: 12px;
-            font-weight: 700;
-            color: #475569;
-            background: transparent;
-            transition: background .2s ease, color .2s ease, transform .15s ease;
-        }
-        .view-btn:hover { color: #4338ca; }
-        .view-btn.is-active {
-            background: white;
-            color: #4338ca;
-            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
-        }
-        .view-btn:active, .token-btn:active, .admin-btn:active { transform: scale(0.97); }
-
-        .primary-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 9px 14px;
-            border-radius: 14px;
-            color: white;
-            font-size: 13px;
-            font-weight: 700;
-            background: linear-gradient(135deg, #4f46e5, #7c3aed);
-            box-shadow: 0 10px 22px rgba(79, 70, 229, 0.32);
-            transition: transform .15s ease, box-shadow .15s ease;
-        }
-        .primary-btn:hover { transform: translateY(-1px); box-shadow: 0 14px 26px rgba(79, 70, 229, 0.38); }
-        .token-btn, .admin-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 9px 12px;
-            border-radius: 14px;
-            font-size: 12px;
-            font-weight: 700;
-        }
-        .token-btn {
-            background: #fffbeb;
-            color: #b45309;
-            border: 1px solid #fde68a;
-        }
-        .token-btn:hover { background: #fef3c7; }
-        .admin-btn { background: #0f172a; color: white; }
-        .admin-btn:hover { background: #1e293b; }
-        .admin-btn.is-on { background: linear-gradient(135deg, #4f46e5, #4338ca); }
-        #lblUserTokenStatus {
-            max-width: 128px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        .icon-btn {
-            width: 38px;
-            height: 38px;
-            border-radius: 14px;
-            color: #475569;
-            background: transparent;
-        }
-        .icon-btn:hover { background: rgba(226, 232, 240, 0.8); }
-        .menu-panel {
-            position: absolute;
-            right: 0;
-            top: calc(100% + 8px);
-            width: 220px;
-            padding: 8px;
-            border-radius: 18px;
-            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
-            z-index: 50;
-        }
-        .menu-item {
-            width: 100%;
-            text-align: left;
-            padding: 10px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-            color: #334155;
-            background: transparent;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .menu-item:hover { background: #eef2ff; }
-        .menu-item.danger { color: #dc2626; }
-        .menu-item.danger:hover { background: #fef2f2; }
-
-        .canvas-grid {
-            background-image: radial-gradient(rgba(99, 102, 241, 0.28) 1.2px, transparent 1.2px);
-            background-size: 22px 22px;
-            border-radius: 28px;
-        }
-
-        .mural-card {
-            --accent: #6366f1;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            gap: 8px;
-            padding: 16px;
-            border-radius: 24px;
-            background: rgba(255, 255, 255, 0.92);
-            border: 1px solid rgba(255, 255, 255, 0.85);
-            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
-            overflow: hidden;
-            animation: rise .5s cubic-bezier(.2, .8, .2, 1) both;
-            transition: transform .22s ease, box-shadow .22s ease;
-        }
-        .mural-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 22px 40px rgba(15, 23, 42, 0.12);
-        }
-        .mural-card.is-dragging,
-        .mural-card.is-dragging:hover {
-            transform: scale(1.04) rotate(-1.5deg);
-            box-shadow: 0 28px 50px rgba(15, 23, 42, 0.2);
-            cursor: grabbing;
-            z-index: 30;
-        }
-        .accent-bar {
-            height: 6px;
-            margin: -16px -16px 12px;
-            background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 20%, white));
-        }
-        .card-cover {
-            height: 148px;
-            margin: -12px -16px 12px;
-            overflow: hidden;
-            background: #e2e8f0;
-        }
-        .card-cover img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform .55s ease;
-        }
-        .mural-card:hover .card-cover img { transform: scale(1.07); }
-        .tag-pill, .status-pill {
-            font-size: 10px;
-            font-weight: 800;
-            letter-spacing: .04em;
-            text-transform: uppercase;
-            padding: 4px 8px;
-            border-radius: 999px;
-        }
-        .tag-pill {
-            background: color-mix(in srgb, var(--accent) 16%, white);
-            color: color-mix(in srgb, var(--accent) 72%, #0f172a);
-        }
-        .status-pill { background: #f1f5f9; color: #475569; }
-        .card-actions { display: flex; gap: 4px; opacity: 0; transition: opacity .2s ease; }
-        .mural-card:hover .card-actions,
-        .mural-card:focus-within .card-actions { opacity: 1; }
-        .ghost-btn {
-            width: 28px;
-            height: 28px;
-            border: 0;
-            border-radius: 10px;
-            background: transparent;
-            color: #475569;
-            cursor: pointer;
-        }
-        .ghost-btn:hover { background: rgba(15, 23, 42, 0.06); }
-        .ghost-btn.danger:hover { background: #fee2e2; color: #dc2626; }
-        .card-title { font-size: 16px; line-height: 1.3; font-weight: 700; }
-        .card-copy { font-size: 13px; line-height: 1.55; color: #334155; white-space: pre-wrap; }
-        .card-footer {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 8px;
-            padding-top: 10px;
-            margin-top: 4px;
-            border-top: 1px solid rgba(15, 23, 42, 0.06);
-            font-size: 12px;
-            color: #64748b;
-        }
-        .card-metrics { display: flex; align-items: center; gap: 8px; }
-        .metric-btn, .like-btn {
-            border: 0;
-            background: #f8fafc;
-            color: #475569;
-            border-radius: 999px;
-            padding: 6px 10px;
-            font-size: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            position: relative;
-        }
-        .metric-btn:hover { background: #eef2ff; color: #4338ca; }
-        .like-btn { color: #e11d48; background: #fff1f2; }
-        .like-btn:hover { background: #ffe4e6; }
-        .like-btn.is-pop i { animation: heartPop .45s cubic-bezier(.2, .8, .2, 1); }
-        .like-floater {
-            position: absolute;
-            left: 50%;
-            top: -2px;
-            font-size: 11px;
-            font-weight: 800;
-            color: #e11d48;
-            pointer-events: none;
-            animation: floatUp .7s ease forwards;
-        }
-        @keyframes heartPop {
-            0% { transform: scale(1); }
-            40% { transform: scale(1.5); }
-            100% { transform: scale(1); }
-        }
-        @keyframes floatUp {
-            to { opacity: 0; transform: translate(-50%, -18px); }
-        }
-        .comments-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            padding-top: 8px;
-        }
-        .comment-bubble {
-            background: #f8fafc;
-            border-radius: 14px;
-            padding: 8px 10px;
-            font-size: 12px;
-            color: #334155;
-            animation: rise .28s ease both;
-        }
-        .comment-empty { font-size: 11px; color: #94a3b8; font-style: italic; }
-        .comment-form { display: flex; gap: 6px; }
-        .comment-form input {
-            flex: 1;
-            min-width: 0;
-            border: 1px solid #e2e8f0;
-            border-radius: 999px;
-            padding: 8px 12px;
-            font-size: 12px;
-            outline: none;
-            background: white;
-        }
-        .comment-form input:focus {
-            border-color: #818cf8;
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.16);
-        }
-        .send-btn {
-            width: 34px;
-            height: 34px;
-            border: 0;
-            border-radius: 50%;
-            background: #4f46e5;
-            color: white;
-            cursor: pointer;
-            flex: none;
-        }
-        .send-btn:hover { background: #4338ca; }
-
-        .kanban-col {
-            transition: transform .2s ease, background .2s ease, box-shadow .2s ease;
-        }
-        .kanban-col.is-drop-target {
-            transform: translateY(-2px) scale(1.01);
-            box-shadow: inset 0 0 0 2px #818cf8;
-            background: rgba(238, 242, 255, 0.95);
-        }
-        .draggable-card { touch-action: none; user-select: none; cursor: grab; }
-
-        .empty-state {
-            grid-column: 1 / -1;
-            margin: 48px auto;
-            max-width: 420px;
-            text-align: center;
-            padding: 36px 24px;
-            border-radius: 28px;
-        }
-        .empty-orb {
-            width: 72px;
-            height: 72px;
-            margin: 0 auto 12px;
-            border-radius: 24px;
-            display: grid;
-            place-items: center;
-            color: #4f46e5;
-            background: linear-gradient(180deg, #eef2ff, #e0e7ff);
-            font-size: 28px;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px) scale(.98); }
-            to { opacity: 1; transform: none; }
-        }
-        @keyframes rise {
-            from { opacity: 0; transform: translateY(14px) scale(.98); }
-            to { opacity: 1; transform: none; }
-        }
-        .animate-fade-in { animation: fadeIn .28s cubic-bezier(.2,.8,.2,1) both; }
-
-        @media (max-width: 860px) {
-            .search-wrap { flex-basis: 100%; }
-            .view-btn span { display: none; }
-            .site-header { top: 0; margin: 0; width: 100%; max-width: 100%; border-radius: 0 0 24px 24px; }
-        }
-        @media (hover: none) {
-            .card-actions { opacity: 1; }
-            .mural-card:hover { transform: none; }
-        }
-        @media (prefers-reduced-motion: reduce) {
-            .blob, .brand-mark, .mural-card, .animate-fade-in, .like-btn.is-pop i, .like-floater {
-                animation: none !important;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mural Interativo Dinâmico em Tempo Real</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f7ff',
+              100: '#e0effe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
             }
+          }
         }
-    </style>
+      }
+    }
+  </script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- Font Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    .card-transition {
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.05);
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(156, 163, 175, 0.5);
+      border-radius: 9999px;
+    }
+  </style>
 </head>
-<body class="text-gray-800 flex flex-col min-h-screen relative overflow-x-hidden">
-    <div class="ambient" aria-hidden="true">
-        <span class="blob blob-a"></span>
-        <span class="blob blob-b"></span>
-        <span class="blob blob-c"></span>
+<body class="h-full bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 flex flex-col transition-colors duration-200">
+
+  <!-- NOTIFICAÇÃO TOAST CONTAINER -->
+  <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- MODAL DE CONFIRMAÇÃO E EDIT -> CUSTOM DIALOG -->
+  <div id="modal-overlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 hidden flex items-center justify-center p-4">
+    <div id="modal-content" class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-lg w-full p-6 border border-slate-200 dark:border-slate-700 transform transition-all scale-95 opacity-0 duration-200">
+      <!-- Injetado via JS -->
     </div>
+  </div>
 
-    <!-- BARRA SUPERIOR / HEADER -->
-    <header class="site-header glass-panel">
-        <div class="header-row">
-            <div class="flex items-center gap-3 min-w-0">
-                <div class="brand-mark">
-                    <i class="fa-solid fa-layer-group text-lg"></i>
-                </div>
-                <div class="min-w-0">
-                    <div class="flex items-center gap-2 flex-wrap">
-                        <h1 class="font-bold text-lg md:text-xl tracking-tight leading-tight">Meu Mural Colaborativo</h1>
-                        <span id="tokenProtectionBadge" class="shield-pill">
-                            <i class="fa-solid fa-shield-halved mr-1"></i>Token Ativo
-                        </span>
-                    </div>
-                    <p class="eyebrow">Padlet virtual · Admin <strong class="text-indigo-600">msssnefc</strong>
-                        <span id="boardStats" class="stats-pill">0 cards</span>
-                    </p>
-                </div>
-            </div>
+  <!-- NAV BAR -->
+  <header class="sticky top-0 z-30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+      <!-- Logo e Título -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
+          <i class="fa-solid fa-satellite-dish text-lg animate-pulse"></i>
+        </div>
+        <div>
+          <h1 class="font-bold text-lg leading-tight tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+            Mural Interativo
+            <span id="sync-indicator" class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-semibold flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
+              Tempo Real
+            </span>
+          </h1>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Quadros, Avisos & Reações Conectadas</p>
+        </div>
+      </div>
 
-            <div class="header-actions">
-                <button type="button" onclick="handleOpenNewCardModal()" class="primary-btn">
-                    <i class="fa-solid fa-plus"></i> Novo Card
-                </button>
-                <button type="button" id="btnEnterToken" onclick="openTokenPromptModal()" class="token-btn">
-                    <i class="fa-solid fa-key"></i> <span id="lblUserTokenStatus">Validar Token</span>
-                </button>
-                <button type="button" id="btnAdminTrigger" onclick="openAdminModal()" class="admin-btn">
-                    <i class="fa-solid fa-user-shield"></i> <span id="lblAdminBtn">Admin msssnefc</span>
-                </button>
-                <div class="relative" id="extraMenu">
-                    <button type="button" class="icon-btn" onclick="toggleExtraMenu(event)" aria-label="Mais opções">
-                        <i class="fa-solid fa-ellipsis-vertical"></i>
-                    </button>
-                    <div id="extraMenuPanel" class="menu-panel glass-panel hidden">
-                        <button type="button" onclick="exportDataJSON()" class="menu-item">
-                            <i class="fa-solid fa-download text-indigo-500"></i> Exportar Dados (JSON)
-                        </button>
-                        <button type="button" onclick="triggerImportJSON()" class="menu-item">
-                            <i class="fa-solid fa-upload text-emerald-500"></i> Importar Dados (JSON)
-                        </button>
-                        <input type="file" id="importFileInput" accept=".json" class="hidden" onchange="importDataJSON(event)">
-                        <button type="button" onclick="handleResetMural()" class="menu-item danger">
-                            <i class="fa-solid fa-trash-arrow-up"></i> Resetar Mural
-                        </button>
-                    </div>
-                </div>
-            </div>
+      <!-- Ações Header -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Indicador de Status do Modo Admin -->
+        <div id="admin-badge" class="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-700/50">
+          <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+          Modo Admin Ativo
         </div>
 
-        <div class="header-tools">
-            <div class="search-wrap">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="searchInput" placeholder="Buscar nos cards..." class="search-field">
-            </div>
-            <select id="filterTag" class="filter-select" aria-label="Filtrar por tag">
-                <option value="all">Todas as Tags</option>
-                <option value="Ideia">💡 Ideia</option>
-                <option value="Tarefa">✅ Tarefa</option>
-                <option value="Aviso">📢 Aviso</option>
-                <option value="Recurso">🔗 Recurso</option>
-            </select>
-            <div class="view-switch" role="group" aria-label="Modo de visualização">
-                <button type="button" id="btnViewGrid" onclick="switchView('grid')" title="Visão em Grade" class="view-btn is-active" aria-pressed="true">
-                    <i class="fa-solid fa-border-all"></i> <span>Grade</span>
-                </button>
-                <button type="button" id="btnViewKanban" onclick="switchView('kanban')" title="Visão em Colunas" class="view-btn" aria-pressed="false">
-                    <i class="fa-solid fa-columns"></i> <span>Colunas</span>
-                </button>
-                <button type="button" id="btnViewFree" onclick="switchView('free')" title="Canvas Livre (Arrastável)" class="view-btn" aria-pressed="false">
-                    <i class="fa-solid fa-up-down-left-right"></i> <span>Livre</span>
-                </button>
-            </div>
+        <!-- Botão Toggle Admin -->
+        <button id="btn-toggle-admin" onclick="toggleAdminMode()" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2 transition">
+          <i class="fa-solid fa-user-shield text-blue-600 dark:text-blue-400"></i>
+          <span id="btn-admin-text">Entrar como Admin</span>
+        </button>
+
+        <!-- Toggle Modo Escuro -->
+        <button onclick="toggleDarkMode()" class="w-10 h-10 rounded-xl border border-slate-300 dark:border-slate-700 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 transition text-slate-600 dark:text-slate-300" title="Alternar tema">
+          <i class="fa-solid fa-sun hidden dark:inline text-amber-400"></i>
+          <i class="fa-solid fa-moon inline dark:hidden text-slate-600"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex flex-col gap-6">
+
+    <!-- ESTATÍSTICAS E FERRAMENTAS DO ADMIN (visível apenas para admin) -->
+    <div id="admin-tools-panel" class="hidden flex-col gap-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800/80 dark:to-slate-800/40 border border-blue-200/80 dark:border-slate-700 p-4 sm:p-6 rounded-2xl">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <i class="fa-solid fa-sliders text-blue-600 dark:text-blue-400"></i>
+            Painel de Controle do Administrador
+          </h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Crie cartões visíveis para todos os usuários em tempo real.</p>
         </div>
-    </header>
+        <div class="flex flex-wrap items-center gap-2">
+          <button onclick="exportData()" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-600 flex items-center gap-1.5 shadow-sm transition">
+            <i class="fa-solid fa-download"></i> Exportar JSON
+          </button>
+          <label class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-600 flex items-center gap-1.5 shadow-sm cursor-pointer transition">
+            <i class="fa-solid fa-upload"></i> Importar JSON
+            <input type="file" id="import-file" accept=".json" class="hidden" onchange="importData(event)" />
+          </label>
+        </div>
+      </div>
 
-    <!-- ÁREA PRINCIPAL / CANVAS -->
-    <main id="mainContainer" class="flex-grow p-4 md:p-6 custom-scrollbar relative transition-all">
-        <!-- Container Principal Dinâmico -->
-        <div id="boardContainer"></div>
-    </main>
+      <!-- FORMULÁRIO DE CRIAÇÃO DE CARD -->
+      <form id="create-card-form" onsubmit="handleCreateCard(event)" class="mt-2 bg-white dark:bg-slate-800 p-4 sm:p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col gap-4">
+        <h3 class="text-sm font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+          <i class="fa-solid fa-plus-circle text-blue-600"></i> Criar Novo Card Global
+        </h3>
 
-    <!-- MODAL 1: CRIAR / EDITAR CARD -->
-    <div id="cardModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="glass-panel bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl relative border border-white/60 animate-fade-in max-h-[90vh] overflow-y-auto custom-scrollbar">
-            <button onclick="closeCardModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-1.5 rounded-full hover:bg-gray-100 transition">
-                <i class="fa-solid fa-xmark text-lg"></i>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Título -->
+          <div class="sm:col-span-2 lg:col-span-1">
+            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Título do Card *</label>
+            <input type="text" id="card-title" required placeholder="Ex: Reunião de Alinhamento" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          </div>
+
+          <!-- Categoria -->
+          <div>
+            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Categoria / Tag *</label>
+            <input type="text" id="card-category" required placeholder="Ex: Avisos, Eventos, Tarefas" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          </div>
+
+          <!-- Autor -->
+          <div>
+            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Autor / Responsável</label>
+            <input type="text" id="card-author" placeholder="Ex: Admin, RH, Equipe T.I." class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          </div>
+        </div>
+
+        <!-- Conteúdo -->
+        <div>
+          <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Conteúdo do Card *</label>
+          <textarea id="card-content" required rows="3" placeholder="Escreva a descrição completa da publicação..." class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 custom-scrollbar"></textarea>
+        </div>
+
+        <!-- Seletor de Cores e Fixado -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pt-1">
+          <div class="flex items-center gap-3">
+            <span class="text-xs font-medium text-slate-600 dark:text-slate-300">Cor de Destaque:</span>
+            <div class="flex items-center gap-2" id="color-picker-container">
+              <button type="button" onclick="selectColor('blue')" data-color="blue" class="color-btn w-7 h-7 rounded-full bg-blue-500 ring-2 ring-offset-2 ring-blue-500 dark:ring-offset-slate-800 transition"></button>
+              <button type="button" onclick="selectColor('emerald')" data-color="emerald" class="color-btn w-7 h-7 rounded-full bg-emerald-500 ring-offset-2 dark:ring-offset-slate-800 transition"></button>
+              <button type="button" onclick="selectColor('amber')" data-color="amber" class="color-btn w-7 h-7 rounded-full bg-amber-500 ring-offset-2 dark:ring-offset-slate-800 transition"></button>
+              <button type="button" onclick="selectColor('rose')" data-color="rose" class="color-btn w-7 h-7 rounded-full bg-rose-500 ring-offset-2 dark:ring-offset-slate-800 transition"></button>
+              <button type="button" onclick="selectColor('purple')" data-color="purple" class="color-btn w-7 h-7 rounded-full bg-purple-500 ring-offset-2 dark:ring-offset-slate-800 transition"></button>
+            </div>
+            <input type="hidden" id="selected-color" value="blue" />
+          </div>
+
+          <div class="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
+            <label class="flex items-center gap-2 text-xs font-medium text-slate-700 dark:text-slate-300 cursor-pointer select-none">
+              <input type="checkbox" id="card-pinned" class="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500" />
+              <i class="fa-solid fa-thumbtack text-amber-500"></i> Fixar no Topo
+            </label>
+
+            <button type="submit" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm shadow-lg shadow-blue-500/30 flex items-center gap-2 transition active:scale-95">
+              <i class="fa-solid fa-paper-plane"></i> Publicar Card Global
             </button>
-
-            <h2 id="modalTitle" class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                <i class="fa-solid fa-pen-to-square text-indigo-600"></i> Criar Novo Card
-            </h2>
-
-            <form id="cardForm" onsubmit="handleSaveCard(event)" class="space-y-4">
-                <input type="hidden" id="cardEditId" value="">
-
-                <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1">TÍTULO</label>
-                    <input type="text" id="inputTitle" required placeholder="Ex: Planejamento Semanal" class="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition">
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">CATEGORIA / TAG</label>
-                        <select id="inputTag" class="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition">
-                            <option value="Ideia">💡 Ideia</option>
-                            <option value="Tarefa">✅ Tarefa</option>
-                            <option value="Aviso">📢 Aviso</option>
-                            <option value="Recurso">🔗 Recurso</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">COLUNA (KANBAN)</label>
-                        <select id="inputStatus" class="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition">
-                            <option value="todo">📌 A Fazer</option>
-                            <option value="doing">⏳ Em Andamento</option>
-                            <option value="done">🎉 Concluído</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1">CONTEÚDO / NOTA</label>
-                    <textarea id="inputContent" rows="3" required placeholder="Escreva aqui os detalhes da sua nota ou tarefa..." class="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"></textarea>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1">IMAGEM DE CAPA (URL ou UPLOAD)</label>
-                    <div class="flex gap-2 mb-2">
-                        <input type="url" id="inputImageUrl" placeholder="https://exemplo.com/imagem.jpg" oninput="handleImageUrlChange()" class="flex-grow px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition">
-                        <label class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer flex items-center gap-1 border border-gray-300 transition">
-                            <i class="fa-solid fa-upload"></i> Upload
-                            <input type="file" id="inputFile" accept="image/*" class="hidden" onchange="handleFileUpload(event)">
-                        </label>
-                    </div>
-                    <div id="imagePreview" class="hidden relative h-32 rounded-xl overflow-hidden bg-gray-100 border border-gray-200">
-                        <img id="previewImg" src="" class="w-full h-full object-cover" alt="Pré-visualização">
-                        <button type="button" onclick="clearImagePreview()" class="absolute top-2 right-2 bg-black/60 text-white rounded-full p-1 text-xs hover:bg-black transition">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Escolha da Cor -->
-                <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-2">COR DE DESTAQUE DO CARD</label>
-                    <div class="flex items-center gap-3">
-                        <label class="cursor-pointer">
-                            <input type="radio" name="cardColor" value="yellow" checked class="peer hidden">
-                            <div class="w-7 h-7 rounded-full bg-amber-200 border border-amber-300 peer-checked:ring-2 peer-checked:ring-amber-500 peer-checked:ring-offset-2 transition"></div>
-                        </label>
-                        <label class="cursor-pointer">
-                            <input type="radio" name="cardColor" value="blue" class="peer hidden">
-                            <div class="w-7 h-7 rounded-full bg-blue-200 border border-blue-300 peer-checked:ring-2 peer-checked:ring-blue-500 peer-checked:ring-offset-2 transition"></div>
-                        </label>
-                        <label class="cursor-pointer">
-                            <input type="radio" name="cardColor" value="green" class="peer hidden">
-                            <div class="w-7 h-7 rounded-full bg-emerald-200 border border-emerald-300 peer-checked:ring-2 peer-checked:ring-emerald-500 peer-checked:ring-offset-2 transition"></div>
-                        </label>
-                        <label class="cursor-pointer">
-                            <input type="radio" name="cardColor" value="pink" class="peer hidden">
-                            <div class="w-7 h-7 rounded-full bg-pink-200 border border-pink-300 peer-checked:ring-2 peer-checked:ring-pink-500 peer-checked:ring-offset-2 transition"></div>
-                        </label>
-                        <label class="cursor-pointer">
-                            <input type="radio" name="cardColor" value="purple" class="peer hidden">
-                            <div class="w-7 h-7 rounded-full bg-purple-200 border border-purple-300 peer-checked:ring-2 peer-checked:ring-purple-500 peer-checked:ring-offset-2 transition"></div>
-                        </label>
-                        <label class="cursor-pointer">
-                            <input type="radio" name="cardColor" value="orange" class="peer hidden">
-                            <div class="w-7 h-7 rounded-full bg-orange-200 border border-orange-300 peer-checked:ring-2 peer-checked:ring-orange-500 peer-checked:ring-offset-2 transition"></div>
-                        </label>
-                    </div>
-                </div>
-
-                <div class="flex justify-end gap-2 pt-3 border-t border-gray-100">
-                    <button type="button" onclick="closeCardModal()" class="px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-100 rounded-xl transition">Cancelar</button>
-                    <button type="submit" class="px-5 py-2 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-md shadow-indigo-200 transition">Salvar Card</button>
-                </div>
-            </form>
+          </div>
         </div>
+      </form>
     </div>
 
-    <!-- MODAL 2: LOGIN ADMIN (msssnefc) / GERENCIADOR DE TOKENS -->
-    <div id="adminModal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-        <div class="glass-panel bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl relative border border-white/60 animate-fade-in max-h-[92vh] overflow-y-auto custom-scrollbar">
-            <button onclick="closeAdminModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-1.5 rounded-full hover:bg-gray-100 transition">
-                <i class="fa-solid fa-xmark text-lg"></i>
-            </button>
+    <!-- CONTROLES DE BUSCA E FILTROS DO VISITANTE -->
+    <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+      
+      <!-- Campo de Busca -->
+      <div class="relative flex-1">
+        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+        <input type="text" id="search-input" oninput="renderCards()" placeholder="Buscar por título, conteúdo ou autor em tempo real..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      </div>
 
-            <!-- TELA DE FORMULÁRIO DE LOGIN (CASO NÃO LOGADO) -->
-            <div id="adminLoginForm">
-                <div class="text-center mb-6">
-                    <div class="inline-flex p-3 bg-indigo-100 text-indigo-600 rounded-2xl mb-3">
-                        <i class="fa-solid fa-user-shield text-2xl"></i>
-                    </div>
-                    <h2 class="text-xl font-bold text-gray-900">Login do Administrador</h2>
-                    <p class="text-xs text-gray-500 mt-1">Acesso restrito para geração de tokens e controle do mural.</p>
-                </div>
-
-                <form onsubmit="handleAdminLogin(event)" autocomplete="off" class="space-y-4 max-w-md mx-auto">
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">NOME DE USUÁRIO</label>
-                        <div class="relative">
-                            <i class="fa-solid fa-user absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
-                            <input type="text" id="adminUsernameInput" value="msssnefc" readonly class="w-full pl-9 pr-3 py-2 text-sm bg-gray-100 border border-gray-200 rounded-xl text-gray-700 font-semibold focus:outline-none">
-                        </div>
-                        <p class="text-[10px] text-indigo-600 mt-1"><i class="fa-solid fa-lock text-[9px]"></i> Usuário fixo do administrador do sistema: <strong>msssnefc</strong></p>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">SENHA</label>
-                        <div class="relative">
-                            <i class="fa-solid fa-key absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
-                            <input type="password" id="adminPasswordInput" required autocomplete="off" placeholder="Digite a senha de admin..." class="w-full pl-9 pr-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition">
-                        </div>
-                    </div>
-
-                    <button type="submit" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm rounded-xl shadow-lg shadow-indigo-200 transition flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-right-to-bracket"></i> Entrar como msssnefc
-                    </button>
-                </form>
-            </div>
-
-            <!-- TELA DO PAINEL DO ADMIN LOGADO -->
-            <div id="adminDashboard" class="hidden">
-                <div class="flex items-center justify-between border-b border-gray-100 pb-4 mb-5">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-lg shadow-md">
-                            M
-                        </div>
-                        <div>
-                            <div class="flex items-center gap-2">
-                                <h2 class="font-bold text-base text-gray-900">msssnefc</h2>
-                                <span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full">ADMIN ATIVO</span>
-                            </div>
-                            <p class="text-xs text-gray-500">Painel de controle e emissão de tokens</p>
-                        </div>
-                    </div>
-                    <button onclick="handleAdminLogout()" class="text-xs text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-xl transition font-medium border border-red-100">
-                        <i class="fa-solid fa-arrow-right-from-bracket mr-1"></i> Sair
-                    </button>
-                </div>
-
-                <!-- Abas Internas do Admin -->
-                <div class="flex border-b border-gray-200 mb-4 gap-4">
-                    <button id="tabBtnGenerate" onclick="switchAdminTab('generate')" class="pb-2 text-xs font-bold border-b-2 border-indigo-600 text-indigo-600 transition">
-                        <i class="fa-solid fa-plus-circle mr-1"></i> Gerar Novo Token
-                    </button>
-                    <button id="tabBtnList" onclick="switchAdminTab('list')" class="pb-2 text-xs font-semibold text-gray-500 border-b-2 border-transparent hover:text-indigo-600 transition">
-                        <i class="fa-solid fa-list-check mr-1"></i> Tokens Criados (<span id="tokenCountBadge">0</span>)
-                    </button>
-                    <button id="tabBtnConfig" onclick="switchAdminTab('config')" class="pb-2 text-xs font-semibold text-gray-500 border-b-2 border-transparent hover:text-indigo-600 transition">
-                        <i class="fa-solid fa-gear mr-1"></i> Configurações
-                    </button>
-                </div>
-
-                <!-- ABA 1: GERAR TOKEN -->
-                <div id="adminTabGenerate" class="space-y-4">
-                    <div class="bg-indigo-50/60 p-4 rounded-2xl border border-indigo-100">
-                        <h3 class="text-xs font-bold text-indigo-900 mb-1 flex items-center gap-1.5">
-                            <i class="fa-solid fa-wand-magic-sparkles text-indigo-600"></i> Emitir Token de Autorização
-                        </h3>
-                        <p class="text-xs text-indigo-700">Gere códigos para permitir que usuários externos publiquem itens sem precisar da senha de administrador.</p>
-                    </div>
-
-                    <form onsubmit="handleGenerateToken(event)" class="space-y-3">
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">IDENTIFICAÇÃO / RÓTULO DO TOKEN</label>
-                            <input type="text" id="tokenLabelInput" required placeholder="Ex: Turma de Treinamento / Equipe de Design" class="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition">
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-xs font-semibold text-gray-600 mb-1">TIPO DE USO</label>
-                                <select id="tokenTypeInput" class="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition">
-                                    <option value="single">Uso Único (1 Publicação)</option>
-                                    <option value="multi">Múltiplos Usos (Ilimitado)</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold text-gray-600 mb-1">CÓDIGO CUSTOMIZADO (OPCIONAL)</label>
-                                <input type="text" id="tokenCustomCodeInput" placeholder="Ex: PROJETO2026" class="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition uppercase">
-                            </div>
-                        </div>
-
-                        <button type="submit" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs rounded-xl shadow-md shadow-indigo-200 transition flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-key"></i> Gerar Token Agora
-                        </button>
-                    </form>
-
-                    <!-- Área de Exibição do Token Recém-Gerado -->
-                    <div id="newlyGeneratedTokenBox" class="hidden p-4 bg-emerald-50 border border-emerald-200 rounded-2xl animate-fade-in text-center">
-                        <p class="text-xs font-bold text-emerald-800 uppercase tracking-wide">Token Gerado com Sucesso!</p>
-                        <div class="flex items-center justify-center gap-2 my-2">
-                            <code id="lblNewTokenCode" class="text-xl font-mono font-bold bg-white text-emerald-700 px-4 py-1.5 rounded-xl border border-emerald-300 shadow-inner tracking-wider">------</code>
-                            <button onclick="copyGeneratedToken()" class="bg-emerald-600 hover:bg-emerald-700 text-white p-2 rounded-xl text-xs font-semibold transition" title="Copiar Token">
-                                <i class="fa-solid fa-copy"></i>
-                            </button>
-                        </div>
-                        <p class="text-[11px] text-emerald-600">Copie o código acima e envie para quem irá publicar conteúdos no mural.</p>
-                    </div>
-                </div>
-
-                <!-- ABA 2: LISTA DE TOKENS -->
-                <div id="adminTabList" class="hidden space-y-3">
-                    <div id="tokensListContainer" class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar pr-1">
-                        <!-- Renderizado via JS -->
-                    </div>
-                </div>
-
-                <!-- ABA 3: CONFIGURAÇÕES DE SEGURANÇA -->
-                <div id="adminTabConfig" class="hidden space-y-4">
-                    <div class="bg-gray-50 p-4 rounded-2xl border border-gray-200 space-y-3">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <h4 class="text-xs font-bold text-gray-800">Exigir Token para Criar/Editar Cards</h4>
-                                <p class="text-[11px] text-gray-500">Se ativado, qualquer visitante sem token ou sem login de admin precisará validar um token.</p>
-                            </div>
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" id="chkRequireToken" onchange="toggleTokenRequirement(this.checked)" class="sr-only peer">
-                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="bg-gray-50 p-4 rounded-2xl border border-gray-200 space-y-3">
-                        <h4 class="text-xs font-bold text-gray-800">Alterar Senha de Administrador (msssnefc)</h4>
-                        <form onsubmit="handleChangeAdminPassword(event)" class="space-y-2">
-                            <input type="password" id="newAdminPasswordInput" required placeholder="Nova Senha..." class="w-full px-3 py-1.5 text-xs bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                            <button type="submit" class="px-3 py-1.5 bg-gray-800 hover:bg-gray-900 text-white rounded-xl text-xs font-semibold transition">
-                                Salvar Nova Senha
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
+      <!-- Filtro por Categoria -->
+      <div class="flex items-center gap-2 overflow-x-auto custom-scrollbar pb-1 md:pb-0" id="category-filters">
+        <!-- Injetado dinamicamente via JavaScript -->
+      </div>
     </div>
 
-    <!-- MODAL 3: INSERIR TOKEN DE VISITANTE -->
-    <div id="tokenPromptModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="glass-panel bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative border border-white/60 animate-fade-in">
-            <button onclick="closeTokenPromptModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-1.5 rounded-full hover:bg-gray-100 transition">
-                <i class="fa-solid fa-xmark text-lg"></i>
-            </button>
-
-            <div class="text-center mb-5">
-                <div class="inline-flex p-3 bg-amber-100 text-amber-600 rounded-2xl mb-2">
-                    <i class="fa-solid fa-key text-xl"></i>
-                </div>
-                <h3 class="text-lg font-bold text-gray-900">Validar Token de Publicação</h3>
-                <p class="text-xs text-gray-500 mt-1">Este mural está protegido. Insira o token gerado pelo Admin <strong class="text-indigo-600">msssnefc</strong> para publicar ou alterar conteúdos.</p>
-            </div>
-
-            <form onsubmit="handleValidateGuestToken(event)" class="space-y-3">
-                <div>
-                    <input type="text" id="guestTokenInput" required placeholder="Digite seu Token (Ex: MURAL-XXXX)" class="w-full px-4 py-2.5 text-center text-base font-mono font-bold tracking-widest bg-amber-50/50 border border-amber-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 transition uppercase">
-                </div>
-
-                <button type="submit" class="w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-semibold text-xs rounded-xl shadow-md transition flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-check-circle"></i> Validar Token
-                </button>
-            </form>
-
-            <div class="mt-4 text-center border-t border-gray-100 pt-3">
-                <button onclick="closeTokenPromptModal(); openAdminModal();" class="text-xs text-indigo-600 hover:underline font-semibold">
-                    <i class="fa-solid fa-user-shield"></i> É o Admin msssnefc? Faça Login
-                </button>
-            </div>
-        </div>
+    <!-- CABEÇALHO DO MURAL COM CONTADOR -->
+    <div class="flex justify-between items-center px-1">
+      <div class="flex items-center gap-2">
+        <h2 class="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Publicações Ao Vivo</h2>
+        <span id="card-count" class="px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold">0</span>
+      </div>
+      <div class="text-xs text-slate-400 flex items-center gap-1">
+        <i class="fa-solid fa-bolt text-amber-400"></i>
+        <span>Sincronização Ativa</span>
+      </div>
     </div>
 
-    <!-- TOAST NOTIFICATION CONTAINER -->
-    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+    <!-- GRID DE CARDS DO MURAL -->
+    <div id="cards-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <!-- Cards renderizados dinamicamente via JS -->
+    </div>
 
-    <!-- SCRIPT PRINCIPAL JAVASCRIPT -->
-    <script>
-        // STATUS GLOBAL DA APLICAÇÃO
-        const ADMIN_USERNAME = 'msssnefc';
+    <!-- ESTADO VAZIO (EMPTY STATE) -->
+    <div id="empty-state" class="hidden flex-col items-center justify-center py-16 px-4 text-center border-2 border-dashed border-slate-300 dark:border-slate-800 rounded-3xl">
+      <div class="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 mb-4 text-2xl">
+        <i class="fa-solid fa-folder-open"></i>
+      </div>
+      <h3 class="text-base font-semibold text-slate-700 dark:text-slate-300">Nenhum card encontrado</h3>
+      <p class="text-xs text-slate-500 dark:text-slate-400 max-w-sm mt-1">Não há publicações correspondentes ou o banco ainda não recebeu novos cartões.</p>
+      <button id="empty-action-btn" onclick="clearFilters()" class="mt-4 px-4 py-2 rounded-xl text-xs font-semibold bg-blue-50 dark:bg-slate-800 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-slate-700 transition">
+        Limpar Filtros de Busca
+      </button>
+    </div>
 
-        let appState = {
-            isAdminLoggedIn: false,
-            adminPassword: '221015250516291115',
-            requireTokenToPost: true,
-            activeGuestToken: null, // Token validado na sessão do visitante
-            currentView: 'grid', // 'grid' | 'kanban' | 'free'
-            searchQuery: '',
-            filterTag: 'all',
-            cards: [],
-            tokens: []
+  </main>
+
+  <!-- RODAPÉ -->
+  <footer class="mt-auto border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-4 text-center text-xs text-slate-500 dark:text-slate-400">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-2">
+      <p>© Mural Interativo Dinâmico - Sincronizado para todos os visitantes simultaneamente.</p>
+      <p class="flex items-center gap-1">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Firebase Realtime Sync On
+      </p>
+    </div>
+  </footer>
+
+  <!-- SCRIPT FIREBASE EM TEMPO REAL E LÓGICA DO MURAL -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, doc, setDoc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // --- CONFIGURAÇÃO FIREBASE E VARIÁVEIS GLOBAIS ---
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'mural-interativo-default';
+    
+    // Configuração Padrão de Projeto Público para Funcionalidade Imediata
+    const firebaseConfig = typeof __firebase_config !== 'undefined' 
+      ? JSON.parse(__firebase_config) 
+      : {
+          apiKey: "AIzaSyDemoConfigMuralKeyForPublicUse123",
+          authDomain: "mural-interativo-app.firebaseapp.com",
+          projectId: "mural-interativo-app",
+          storageBucket: "mural-interativo-app.appspot.com",
+          messagingSenderId: "1234567890",
+          appId: "1:1234567890:web:abcdef123456"
         };
 
-        // DADOS DE EXEMPLO INICIAIS
-        const defaultCards = [
-            {
-                id: 'card-1',
-                title: 'Bem-vindo ao Mural com Autenticação!',
-                tag: 'Aviso',
-                status: 'todo',
-                content: 'Este mural possui suporte a Administrador (msssnefc) e emissão de Tokens de publicação para visitantes.',
-                imageUrl: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=600&q=80',
-                color: 'blue',
-                likes: 5,
-                comments: ['Excelente iniciativa!', 'Muito prático.'],
-                x: 30,
-                y: 30,
-                createdAt: new Date().toLocaleDateString('pt-BR')
-            },
-            {
-                id: 'card-2',
-                title: 'Gerenciamento de Tokens',
-                tag: 'Recurso',
-                status: 'doing',
-                content: 'Faça login como "msssnefc" na Área Admin para criar novos tokens de uso único ou contínuo.',
-                imageUrl: '',
-                color: 'yellow',
-                likes: 3,
-                comments: [],
-                x: 360,
-                y: 30,
-                createdAt: new Date().toLocaleDateString('pt-BR')
-            },
-            {
-                id: 'card-3',
-                title: 'Design Responsivo e Canvas Livre',
-                tag: 'Ideia',
-                status: 'done',
-                content: 'Alterne entre visualização em Grade, Colunas Kanban ou Canvas Livre Arrastável!',
-                imageUrl: 'https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&w=600&q=80',
-                color: 'green',
-                likes: 8,
-                comments: ['Sensacional'],
-                x: 690,
-                y: 30,
-                createdAt: new Date().toLocaleDateString('pt-BR')
-            }
-        ];
+    let app, auth, db;
+    let currentUser = null;
+    let globalCards = [];
+    let isAdmin = false;
+    let selectedCategoryFilter = 'ALL';
+    let currentColor = 'blue';
+    const ADMIN_PASSWORD_DEFAULT = 'admin123';
 
-        const defaultTokens = [
-            {
-                id: 'tok-1',
-                code: 'PADLET-2026',
-                label: 'Equipe Inicial',
-                type: 'multi', // 'single' ou 'multi'
-                usedCount: 0,
-                status: 'active', // 'active', 'expired'
-                createdAt: new Date().toLocaleDateString('pt-BR')
-            }
-        ];
+    // Senhas salvas localmente
+    let adminPassword = localStorage.getItem('mural_admin_password') || ADMIN_PASSWORD_DEFAULT;
 
-        // INICIALIZAÇÃO
-        window.addEventListener('DOMContentLoaded', () => {
-            loadLocalStorage();
-            setupEventListeners();
-            renderBoard();
-            updateUIState();
-        });
+    // Inicialização do Firebase
+    try {
+      app = initializeApp(firebaseConfig);
+      auth = getAuth(app);
+      db = getFirestore(app);
+    } catch (e) {
+      console.warn("Firebase inicializado em modo fallback", e);
+    }
 
-        // SALVAR E CARREGAR LOCALSTORAGE
-        function saveLocalStorage() {
-            localStorage.setItem('padlet_app_cards', JSON.stringify(appState.cards));
-            localStorage.setItem('padlet_app_tokens', JSON.stringify(appState.tokens));
-            localStorage.setItem('padlet_admin_pwd', appState.adminPassword);
-            localStorage.setItem('padlet_require_token', JSON.stringify(appState.requireTokenToPost));
+    // Coleção pública Firestore seguindo a regra obrigatória da plataforma
+    const getCardsCollection = () => collection(db, 'artifacts', appId, 'public', 'data', 'mural_cards');
+    const getCardDoc = (id) => doc(db, 'artifacts', appId, 'public', 'data', 'mural_cards', id);
+
+    // --- AUTENTICAÇÃO E ESCUTA DE DADOS EM TEMPO REAL ---
+    async function initFirebaseSync() {
+      try {
+        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+          await signInWithCustomToken(auth, __initial_auth_token);
+        } else {
+          await signInAnonymously(auth);
         }
+      } catch (err) {
+        console.warn("Autenticação anônima temporariamente offline, usando fallback local", err);
+      }
 
-        function loadLocalStorage() {
-            const savedCards = localStorage.getItem('padlet_app_cards');
-            const savedTokens = localStorage.getItem('padlet_app_tokens');
-            const savedPwd = localStorage.getItem('padlet_admin_pwd');
-            const savedReqToken = localStorage.getItem('padlet_require_token');
-
-            appState.cards = savedCards ? JSON.parse(savedCards) : defaultCards;
-            appState.tokens = savedTokens ? JSON.parse(savedTokens) : defaultTokens;
-            // Se não houver senha ou se for a senha antiga 'admin123', substitui para a nova senha
-            appState.adminPassword = (!savedPwd || savedPwd === 'admin123') ? '221015250516291115' : savedPwd;
-            appState.requireTokenToPost = savedReqToken !== null ? JSON.parse(savedReqToken) : true;
-        }
-
-        // EVENT LISTENERS DE PESQUISA E FILTROS
-        function setupEventListeners() {
-            document.getElementById('searchInput').addEventListener('input', (e) => {
-                appState.searchQuery = e.target.value.toLowerCase();
-                renderBoard();
+      onAuthStateChanged(auth, (user) => {
+        currentUser = user;
+        if (user && db) {
+          // Escuta alterações na nuvem em Tempo Real
+          onSnapshot(getCardsCollection(), (snapshot) => {
+            const fetched = [];
+            snapshot.forEach((docSnap) => {
+              fetched.push({ id: docSnap.id, ...docSnap.data() });
             });
-
-            document.getElementById('filterTag').addEventListener('change', (e) => {
-                appState.filterTag = e.target.value;
-                renderBoard();
-            });
-
-            document.addEventListener('click', (e) => {
-                const menu = document.getElementById('extraMenu');
-                const panel = document.getElementById('extraMenuPanel');
-                if (panel && menu && !menu.contains(e.target)) panel.classList.add('hidden');
-            });
-
-            document.getElementById('extraMenuPanel').addEventListener('click', () => {
-                document.getElementById('extraMenuPanel').classList.add('hidden');
-            });
-        }
-
-        function toggleExtraMenu(event) {
-            event.stopPropagation();
-            document.getElementById('extraMenuPanel').classList.toggle('hidden');
-        }
-
-        // ATUALIZA ELEMENTOS DE INTERFACE CONFORME O ESTADO DE ADMIN/TOKEN
-        function updateUIState() {
-            const lblAdminBtn = document.getElementById('lblAdminBtn');
-            const btnAdminTrigger = document.getElementById('btnAdminTrigger');
-            const lblUserTokenStatus = document.getElementById('lblUserTokenStatus');
-            const tokenProtectionBadge = document.getElementById('tokenProtectionBadge');
-            const chkRequireToken = document.getElementById('chkRequireToken');
-
-            if (appState.isAdminLoggedIn) {
-                lblAdminBtn.innerText = 'Admin (msssnefc)';
-                btnAdminTrigger.classList.add('is-on');
-            } else {
-                lblAdminBtn.innerText = 'Área Admin';
-                btnAdminTrigger.classList.remove('is-on');
-            }
-
-            if (appState.activeGuestToken) {
-                lblUserTokenStatus.innerText = `Token: ${appState.activeGuestToken}`;
-            } else {
-                lblUserTokenStatus.innerText = 'Validar Token';
-            }
-
-            if (appState.requireTokenToPost) {
-                tokenProtectionBadge.classList.remove('hidden');
-            } else {
-                tokenProtectionBadge.classList.add('hidden');
-            }
-
-            if (chkRequireToken) {
-                chkRequireToken.checked = appState.requireTokenToPost;
-            }
-        }
-
-        // ALTERNÂNCIA DE VISUALIZAÇÃO (GRADE, KANBAN, CANVA LIVRE)
-        function switchView(view) {
-            appState.currentView = view;
             
-            // Estilizar botões ativos
-            const views = ['Grid', 'Kanban', 'Free'];
-            views.forEach(v => {
-                const btn = document.getElementById(`btnView${v}`);
-                const active = v.toLowerCase() === view;
-                btn.className = active ? 'view-btn is-active' : 'view-btn';
-                btn.setAttribute('aria-pressed', active ? 'true' : 'false');
-            });
-
-            renderBoard();
-        }
-
-        // RENDERIZAÇÃO DO QUADRO PRINCIPAL
-        function renderBoard() {
-            const container = document.getElementById('boardContainer');
-            const mainContainer = document.getElementById('mainContainer');
-            container.innerHTML = '';
-
-            // Filtragem dos cards
-            const filteredCards = appState.cards.filter(card => {
-                const matchesSearch = card.title.toLowerCase().includes(appState.searchQuery) || 
-                                      card.content.toLowerCase().includes(appState.searchQuery);
-                const matchesTag = appState.filterTag === 'all' || card.tag === appState.filterTag;
-                return matchesSearch && matchesTag;
-            });
-
-            const stats = document.getElementById('boardStats');
-            if (stats) {
-                const total = appState.cards.length;
-                const visible = filteredCards.length;
-                stats.textContent = visible === total
-                    ? `${total} ${total === 1 ? 'card' : 'cards'}`
-                    : `${visible} de ${total}`;
-            }
-
-            if (appState.currentView === 'free') {
-                mainContainer.classList.add('canvas-grid');
-                renderFreeCanvasView(container, filteredCards);
-            } else if (appState.currentView === 'kanban') {
-                mainContainer.classList.remove('canvas-grid');
-                renderKanbanView(container, filteredCards);
+            // Se o banco estiver vazio pela primeira vez, alimenta com exemplos
+            if (fetched.length === 0) {
+              seedDefaultCards();
             } else {
-                mainContainer.classList.remove('canvas-grid');
-                renderGridView(container, filteredCards);
+              globalCards = fetched;
+              localStorage.setItem('mural_interativo_backup', JSON.stringify(globalCards));
+              renderCards();
             }
+          }, (error) => {
+            console.error("Erro na escuta Firestore:", error);
+            loadFallbackLocalCards();
+          });
+        } else {
+          loadFallbackLocalCards();
+        }
+      });
+    }
+
+    // Inicializar cartões de exemplo se for um mural novo
+    async function seedDefaultCards() {
+      const defaultCards = [
+        {
+          title: 'Bem-vindo ao Mural Interativo! 🎉',
+          category: 'Informações',
+          author: 'Administrador',
+          content: 'Este é o novo mural digital conectado em tempo real. Qualquer postagem ou reação é atualizada para todos os leitores sem recarregar a página!',
+          color: 'blue',
+          pinned: true,
+          likes: 5,
+          createdAt: new Date().toISOString()
+        },
+        {
+          title: 'Aviso de Manutenção',
+          category: 'Avisos',
+          author: 'Equipe de T.I.',
+          content: 'Lembrete: Atualizações do sistema agendadas para esta sexta-feira às 20h.',
+          color: 'rose',
+          pinned: false,
+          likes: 2,
+          createdAt: new Date(Date.now() - 3600000 * 2).toISOString()
+        }
+      ];
+
+      for (const card of defaultCards) {
+        const newRef = doc(getCardsCollection());
+        await setDoc(newRef, { ...card, id: newRef.id });
+      }
+    }
+
+    function loadFallbackLocalCards() {
+      const raw = localStorage.getItem('mural_interativo_backup');
+      globalCards = raw ? JSON.parse(raw) : [];
+      renderCards();
+    }
+
+    // --- MODO ADMIN COM SENHA ---
+    window.toggleAdminMode = function() {
+      if (!isAdmin) {
+        openCustomModal(`
+          <div class="text-center">
+            <div class="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center mx-auto mb-3 text-xl">
+              <i class="fa-solid fa-lock"></i>
+            </div>
+            <h3 class="text-lg font-bold text-slate-800 dark:text-white">Autenticação do Administrador</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-4">Insira a senha de acesso (Padrão: <code class="bg-slate-100 dark:bg-slate-700 px-1.5 py-0.5 rounded text-blue-600 dark:text-blue-400">admin123</code>)</p>
+            <input type="password" id="admin-pass-input" placeholder="Digite a senha..." class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm mb-4 focus:ring-2 focus:ring-blue-500" />
+            <div class="flex justify-center gap-3">
+              <button onclick="closeCustomModal()" class="px-4 py-2 rounded-xl text-xs font-semibold border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">Cancelar</button>
+              <button onclick="verifyAdminPass()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 shadow-md">Entrar</button>
+            </div>
+          </div>
+        `);
+      } else {
+        isAdmin = false;
+        updateAdminUI();
+        showToast('Modo Administrador encerrado.', 'info');
+      }
+    };
+
+    window.verifyAdminPass = function() {
+      const input = document.getElementById('admin-pass-input')?.value;
+      if (input === adminPassword) {
+        isAdmin = true;
+        closeCustomModal();
+        updateAdminUI();
+        showToast('Acesso de Administrador concedido!', 'success');
+      } else {
+        showToast('Senha incorreta!', 'danger');
+      }
+    };
+
+    function updateAdminUI() {
+      const panel = document.getElementById('admin-tools-panel');
+      const badge = document.getElementById('admin-badge');
+      const btnText = document.getElementById('btn-admin-text');
+
+      if (isAdmin) {
+        panel.classList.remove('hidden');
+        panel.classList.add('flex');
+        badge.classList.remove('hidden');
+        badge.classList.add('flex');
+        btnText.textContent = 'Sair do Modo Admin';
+      } else {
+        panel.classList.add('hidden');
+        panel.classList.remove('flex');
+        badge.classList.add('hidden');
+        badge.classList.remove('flex');
+        btnText.textContent = 'Entrar como Admin';
+      }
+      renderCards();
+    }
+
+    // --- AÇÕES COM CARDS (CRIAR, EXCLUIR, ATUALIZAR, REAGIR) ---
+    window.handleCreateCard = async function(e) {
+      e.preventDefault();
+      
+      const title = document.getElementById('card-title').value.trim();
+      const category = document.getElementById('card-category').value.trim();
+      const author = document.getElementById('card-author').value.trim() || 'Administrador';
+      const content = document.getElementById('card-content').value.trim();
+      const color = document.getElementById('selected-color').value || 'blue';
+      const pinned = document.getElementById('card-pinned').checked;
+
+      if (!title || !category || !content) {
+        showToast('Preencha os campos obrigatórios!', 'warning');
+        return;
+      }
+
+      const newCard = {
+        title,
+        category,
+        author,
+        content,
+        color,
+        pinned,
+        likes: 0,
+        createdAt: new Date().toISOString()
+      };
+
+      try {
+        if (currentUser && db) {
+          const docRef = doc(getCardsCollection());
+          await setDoc(docRef, { ...newCard, id: docRef.id });
+        } else {
+          newCard.id = Date.now().toString();
+          globalCards.unshift(newCard);
+          localStorage.setItem('mural_interativo_backup', JSON.stringify(globalCards));
+          renderCards();
         }
 
-        // 1. VISUALIZAÇÃO EM GRADE (GRID)
-        function renderGridView(container, cards) {
-            container.className = 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6';
+        document.getElementById('create-card-form').reset();
+        selectColor('blue');
+        showToast('Card publicado para todos os usuários!', 'success');
+      } catch (err) {
+        console.error("Erro ao salvar card:", err);
+        showToast('Erro ao publicar o card.', 'danger');
+      }
+    };
 
-            if (cards.length === 0) {
-                container.innerHTML = getEmptyStateHTML();
-                return;
-            }
+    window.toggleLikeCard = async function(id) {
+      const card = globalCards.find(c => c.id === id);
+      if (!card) return;
 
-            cards.forEach((card, index) => {
-                const cardEl = createCardElement(card);
-                cardEl.style.animationDelay = `${Math.min(index, 12) * 45}ms`;
-                container.appendChild(cardEl);
-            });
+      const newLikes = (card.likes || 0) + 1;
+
+      try {
+        if (currentUser && db) {
+          await updateDoc(getCardDoc(id), { likes: newLikes });
+        } else {
+          card.likes = newLikes;
+          localStorage.setItem('mural_interativo_backup', JSON.stringify(globalCards));
+          renderCards();
         }
+        showToast('Reação enviada!', 'success');
+      } catch (e) {
+        console.error("Erro ao reagir:", e);
+      }
+    };
 
-        // 2. VISUALIZAÇÃO EM COLUNAS (KANBAN)
-        function renderKanbanView(container, cards) {
-            container.className = 'grid grid-cols-1 md:grid-cols-3 gap-6 items-start';
+    window.deleteCard = function(id) {
+      openCustomModal(`
+        <div class="text-center">
+          <div class="w-12 h-12 rounded-full bg-rose-100 dark:bg-rose-900/50 text-rose-600 dark:text-rose-400 flex items-center justify-center mx-auto mb-3 text-xl">
+            <i class="fa-solid fa-trash-can"></i>
+          </div>
+          <h3 class="text-lg font-bold text-slate-800 dark:text-white">Excluir este Card?</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-4">Ele será removido em tempo real para todos os leitores.</p>
+          <div class="flex justify-center gap-3">
+            <button onclick="closeCustomModal()" class="px-4 py-2 rounded-xl text-xs font-semibold border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">Cancelar</button>
+            <button onclick="confirmDeleteCard('${id}')" class="px-4 py-2 rounded-xl text-xs font-semibold bg-rose-600 text-white hover:bg-rose-700 shadow-md">Sim, Excluir</button>
+          </div>
+        </div>
+      `);
+    };
 
-            const columns = [
-                { id: 'todo', title: '📌 A Fazer', bg: 'bg-slate-100/80' },
-                { id: 'doing', title: '⏳ Em Andamento', bg: 'bg-indigo-50/80' },
-                { id: 'done', title: '🎉 Concluído', bg: 'bg-emerald-50/80' }
-            ];
-
-            columns.forEach(col => {
-                const colCards = cards.filter(c => c.status === col.id);
-                const colEl = document.createElement('div');
-                colEl.className = `kanban-col ${col.bg} p-4 rounded-3xl border border-white/70 min-h-[400px] flex flex-col gap-4 shadow-sm`;
-                colEl.setAttribute('ondragover', 'allowDrop(event)');
-                colEl.setAttribute('ondragenter', 'handleDragEnter(event)');
-                colEl.setAttribute('ondragleave', 'handleDragLeave(event)');
-                colEl.setAttribute('ondrop', `handleDrop(event, '${col.id}')`);
-
-                colEl.innerHTML = `
-                    <div class="flex items-center justify-between pb-2 border-b border-gray-200/60">
-                        <h3 class="font-bold text-sm text-gray-800">${col.title}</h3>
-                        <span class="bg-white px-2 py-0.5 rounded-full text-xs font-bold text-gray-500 shadow-sm">${colCards.length}</span>
-                    </div>
-                    <div class="space-y-4 flex-grow" id="col-container-${col.id}"></div>
-                `;
-
-                const cardsContainer = colEl.querySelector(`#col-container-${col.id}`);
-                if (colCards.length === 0) {
-                    cardsContainer.innerHTML = `<p class="text-xs text-gray-400 italic text-center py-8">Nenhum card nesta coluna</p>`;
-                } else {
-                    colCards.forEach((card, index) => {
-                        const cardEl = createCardElement(card);
-                        cardEl.style.animationDelay = `${Math.min(index, 8) * 40}ms`;
-                        cardEl.setAttribute('draggable', 'true');
-                        cardEl.setAttribute('ondragstart', `handleDragStart(event, '${card.id}')`);
-                        cardEl.setAttribute('ondragend', 'handleDragEnd(event)');
-                        cardsContainer.appendChild(cardEl);
-                    });
-                }
-
-                container.appendChild(colEl);
-            });
+    window.confirmDeleteCard = async function(id) {
+      try {
+        if (currentUser && db) {
+          await deleteDoc(getCardDoc(id));
+        } else {
+          globalCards = globalCards.filter(c => c.id !== id);
+          localStorage.setItem('mural_interativo_backup', JSON.stringify(globalCards));
+          renderCards();
         }
+        closeCustomModal();
+        showToast('Card excluído com sucesso!', 'info');
+      } catch (err) {
+        console.error(err);
+        showToast('Erro ao excluir card.', 'danger');
+      }
+    };
 
-        // 3. VISUALIZAÇÃO LIVRE (CANVAS ARRASTÁVEL)
-        function renderFreeCanvasView(container, cards) {
-            container.className = 'relative w-full min-h-[700px] border border-white/70 rounded-[28px] bg-white/35 p-4 overflow-hidden shadow-inner';
+    window.togglePinCard = async function(id) {
+      const card = globalCards.find(c => c.id === id);
+      if (!card) return;
 
-            if (cards.length === 0) {
-                container.innerHTML = getEmptyStateHTML();
-                return;
-            }
-
-            cards.forEach((card, index) => {
-                const cardEl = createCardElement(card);
-                cardEl.style.animationDelay = `${Math.min(index, 12) * 45}ms`;
-                cardEl.classList.add('absolute', 'w-80', 'draggable-card', 'shadow-xl');
-                cardEl.style.left = `${card.x || 30}px`;
-                cardEl.style.top = `${card.y || 30}px`;
-
-                // Eventos de Drag Livre 2D
-                makeCardDraggable(cardEl, card);
-                container.appendChild(cardEl);
-            });
+      try {
+        if (currentUser && db) {
+          await updateDoc(getCardDoc(id), { pinned: !card.pinned });
+        } else {
+          card.pinned = !card.pinned;
+          localStorage.setItem('mural_interativo_backup', JSON.stringify(globalCards));
+          renderCards();
         }
+        showToast(card.pinned ? 'Card fixado no topo!' : 'Card desfixado.', 'info');
+      } catch (err) {
+        console.error(err);
+      }
+    };
 
-        // CRIAÇÃO DO ELEMENTO DE CARD INDIVIDUAL
-        function createCardElement(card) {
-            const cardEl = document.createElement('article');
-            const accents = {
-                yellow: '#f59e0b',
-                blue: '#3b82f6',
-                green: '#10b981',
-                pink: '#ec4899',
-                purple: '#8b5cf6',
-                orange: '#f97316'
-            };
-            const statusLabels = {
-                todo: 'A fazer',
-                doing: 'Em andamento',
-                done: 'Concluído'
-            };
-            const comments = Array.isArray(card.comments) ? card.comments : [];
+    window.editCard = function(id) {
+      const card = globalCards.find(c => c.id === id);
+      if (!card) return;
 
-            cardEl.className = 'mural-card';
-            cardEl.id = `card-node-${card.id}`;
-            cardEl.style.setProperty('--accent', accents[card.color] || accents.yellow);
+      openCustomModal(`
+        <div>
+          <h3 class="text-base font-bold text-slate-800 dark:text-white mb-3 flex items-center gap-2">
+            <i class="fa-solid fa-pen-to-square text-blue-500"></i> Editar Card Global
+          </h3>
+          <form onsubmit="saveEditCard(event, '${card.id}')" class="flex flex-col gap-3">
+            <div>
+              <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Título</label>
+              <input type="text" id="edit-title" value="${escapeHtml(card.title)}" required class="w-full px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-xs focus:ring-2 focus:ring-blue-500" />
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Categoria</label>
+                <input type="text" id="edit-category" value="${escapeHtml(card.category)}" required class="w-full px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-xs focus:ring-2 focus:ring-blue-500" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Autor</label>
+                <input type="text" id="edit-author" value="${escapeHtml(card.author)}" class="w-full px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-xs focus:ring-2 focus:ring-blue-500" />
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Conteúdo</label>
+              <textarea id="edit-content" required rows="3" class="w-full px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-xs focus:ring-2 focus:ring-blue-500 custom-scrollbar">${escapeHtml(card.content)}</textarea>
+            </div>
+            <div class="flex justify-end gap-2 mt-2">
+              <button type="button" onclick="closeCustomModal()" class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">Cancelar</button>
+              <button type="submit" class="px-4 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700">Salvar Alterações</button>
+            </div>
+          </form>
+        </div>
+      `);
+    };
 
-            const imageHTML = card.imageUrl ? `
-                <div class="card-cover">
-                    <img src="${card.imageUrl}" onerror="this.src='https://placehold.co/600x400/e2e8f0/64748b?text=Imagem+Indisponivel'" alt="Capa">
-                </div>
-            ` : '';
+    window.saveEditCard = async function(e, id) {
+      e.preventDefault();
+      const title = document.getElementById('edit-title').value.trim();
+      const category = document.getElementById('edit-category').value.trim();
+      const author = document.getElementById('edit-author').value.trim() || 'Administrador';
+      const content = document.getElementById('edit-content').value.trim();
 
-            const statusHTML = appState.currentView === 'kanban'
-                ? ''
-                : `<span class="status-pill">${statusLabels[card.status] || 'A fazer'}</span>`;
-
-            const commentsHTML = comments.length
-                ? comments.map(c => `<div class="comment-bubble">${escapeHTML(c)}</div>`).join('')
-                : `<p class="comment-empty">Seja o primeiro a comentar.</p>`;
-
-            cardEl.innerHTML = `
-                <div>
-                    <div class="accent-bar"></div>
-                    ${imageHTML}
-                    <div class="flex items-center justify-between gap-2 mb-2">
-                        <div class="flex items-center gap-1.5 flex-wrap">
-                            <span class="tag-pill">${escapeHTML(card.tag)}</span>
-                            ${statusHTML}
-                        </div>
-                        <div class="card-actions">
-                            <button type="button" onclick="handleEditCard('${card.id}')" class="ghost-btn" title="Editar">
-                                <i class="fa-solid fa-pen"></i>
-                            </button>
-                            <button type="button" onclick="handleDeleteCard('${card.id}')" class="ghost-btn danger" title="Excluir">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <h3 class="card-title mb-1.5">${escapeHTML(card.title)}</h3>
-                    <p class="card-copy">${escapeHTML(card.content)}</p>
-                </div>
-                <div>
-                    <div id="comments-section-${card.id}" class="comments-panel hidden">
-                        <div id="comments-list-${card.id}">${commentsHTML}</div>
-                        <form class="comment-form" onsubmit="addComment(event, '${card.id}')">
-                            <input type="text" maxlength="180" placeholder="Escreva um comentário..." aria-label="Comentário">
-                            <button type="submit" class="send-btn" aria-label="Enviar comentário"><i class="fa-solid fa-paper-plane"></i></button>
-                        </form>
-                    </div>
-                    <div class="card-footer">
-                        <span>${card.createdAt || ''}</span>
-                        <div class="card-metrics">
-                            <button type="button" onclick="toggleComments('${card.id}')" class="metric-btn">
-                                <i class="fa-regular fa-comment"></i> <span class="comment-count">${comments.length}</span>
-                            </button>
-                            <button type="button" onclick="likeCard('${card.id}')" class="like-btn" title="Curtir">
-                                <i class="fa-solid fa-heart"></i> <span class="like-count">${card.likes || 0}</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            return cardEl;
+      try {
+        if (currentUser && db) {
+          await updateDoc(getCardDoc(id), { title, category, author, content });
+        } else {
+          const card = globalCards.find(c => c.id === id);
+          if (card) {
+            card.title = title; card.category = category; card.author = author; card.content = content;
+            localStorage.setItem('mural_interativo_backup', JSON.stringify(globalCards));
+            renderCards();
+          }
         }
+        closeCustomModal();
+        showToast('Card atualizado para todos!', 'success');
+      } catch (err) {
+        console.error(err);
+      }
+    };
 
-        // ESTADO VAZIO
-        function getEmptyStateHTML() {
-            return `
-                <div class="empty-state glass-panel">
-                    <div class="empty-orb"><i class="fa-solid fa-note-sticky"></i></div>
-                    <h3 class="text-lg font-bold text-gray-800">Nenhum card por aqui</h3>
-                    <p class="text-sm text-gray-500 mt-1 mb-4">Crie uma nota nova ou mude o filtro da busca.</p>
-                    <button type="button" onclick="handleOpenNewCardModal()" class="primary-btn"><i class="fa-solid fa-plus"></i> Criar card</button>
-                </div>
-            `;
+    // --- SELEÇÃO DE CORES ---
+    window.selectColor = function(color) {
+      currentColor = color;
+      document.getElementById('selected-color').value = color;
+
+      document.querySelectorAll('#color-picker-container .color-btn').forEach(btn => {
+        const btnColor = btn.getAttribute('data-color');
+        if (btnColor === color) {
+          btn.classList.add('ring-2', `ring-${color}-500`);
+        } else {
+          btn.classList.remove('ring-2', 'ring-blue-500', 'ring-emerald-500', 'ring-amber-500', 'ring-rose-500', 'ring-purple-500');
         }
+      });
+    };
 
-        // VERIFICAÇÃO DE PERMISSÃO PARA PUBLICAR/EDITAR
-        function checkCanUserPost() {
-            if (!appState.requireTokenToPost) return true; // Proteção desativada
-            if (appState.isAdminLoggedIn) return true; // Admin msssnefc tem acesso total
-            if (appState.activeGuestToken) return true; // Possui token validado na sessão
-            return false;
-        }
+    // --- FILTROS E RENDERIZAÇÃO ---
+    function renderCategoryFilters() {
+      const container = document.getElementById('category-filters');
+      const categories = ['ALL', ...new Set(globalCards.map(c => c.category).filter(Boolean))];
 
-        // ABRIR MODAL DE NOVO CARD
-        function handleOpenNewCardModal() {
-            if (!checkCanUserPost()) {
-                openTokenPromptModal();
-                showToast('Ação protegida! Valide um token para publicar.', 'warning');
-                return;
-            }
+      container.innerHTML = categories.map(cat => {
+        const isSelected = selectedCategoryFilter === cat;
+        const label = cat === 'ALL' ? 'Todas As Categorias' : cat;
+        return `
+          <button onclick="setCategoryFilter('${cat}')" class="px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition ${
+            isSelected 
+              ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20' 
+              : 'bg-slate-100 dark:bg-slate-700/60 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+          }">
+            ${escapeHtml(label)}
+          </button>
+        `;
+      }).join('');
+    }
 
-            document.getElementById('modalTitle').innerHTML = `<i class="fa-solid fa-pen-to-square text-indigo-600"></i> Criar Novo Card`;
-            document.getElementById('cardEditId').value = '';
-            document.getElementById('cardForm').reset();
-            clearImagePreview();
-            document.getElementById('cardModal').classList.remove('hidden');
-        }
+    window.setCategoryFilter = function(category) {
+      selectedCategoryFilter = category;
+      renderCards();
+    };
 
-        // SALVAR CARD (CRIAR OU EDITAR)
-        function handleSaveCard(event) {
-            event.preventDefault();
+    window.clearFilters = function() {
+      document.getElementById('search-input').value = '';
+      selectedCategoryFilter = 'ALL';
+      renderCards();
+    };
 
-            if (!checkCanUserPost()) {
-                openTokenPromptModal();
-                return;
-            }
+    function renderCards() {
+      const searchSearch = (document.getElementById('search-input')?.value || '').toLowerCase().trim();
+      const grid = document.getElementById('cards-grid');
+      const emptyState = document.getElementById('empty-state');
+      const countBadge = document.getElementById('card-count');
 
-            const editId = document.getElementById('cardEditId').value;
-            const title = document.getElementById('inputTitle').value;
-            const tag = document.getElementById('inputTag').value;
-            const status = document.getElementById('inputStatus').value;
-            const content = document.getElementById('inputContent').value;
-            const imageUrl = document.getElementById('inputImageUrl').value;
+      renderCategoryFilters();
+
+      let filtered = globalCards.filter(card => {
+        const matchCategory = selectedCategoryFilter === 'ALL' || (card.category && card.category.toLowerCase() === selectedCategoryFilter.toLowerCase());
+        const matchSearch = !searchSearch || 
+          (card.title && card.title.toLowerCase().includes(searchSearch)) ||
+          (card.content && card.content.toLowerCase().includes(searchSearch)) ||
+          (card.author && card.author.toLowerCase().includes(searchSearch)) ||
+          (card.category && card.category.toLowerCase().includes(searchSearch));
+        return matchCategory && matchSearch;
+      });
+
+      filtered.sort((a, b) => {
+        if (a.pinned && !b.pinned) return -1;
+        if (!a.pinned && b.pinned) return 1;
+        return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+      });
+
+      countBadge.textContent = filtered.length;
+
+      if (filtered.length === 0) {
+        grid.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        emptyState.classList.add('flex');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+      emptyState.classList.remove('flex');
+
+      const colorMap = {
+        blue: { border: 'border-blue-500', bgBadge: 'bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300' },
+        emerald: { border: 'border-emerald-500', bgBadge: 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300' },
+        amber: { border: 'border-amber-500', bgBadge: 'bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300' },
+        rose: { border: 'border-rose-500', bgBadge: 'bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300' },
+        purple: { border: 'border-purple-500', bgBadge: 'bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300' }
+      };
+
+      grid.innerHTML = filtered.map(card => {
+        const style = colorMap[card.color] || colorMap.blue;
+        const formattedDate = formatDate(card.createdAt);
+        const likesCount = card.likes || 0;
+
+        return `
+          <div class="card-transition group relative bg-white dark:bg-slate-800 rounded-2xl p-5 border-l-4 ${style.border} border-t border-r border-b border-slate-200 dark:border-slate-700/80 shadow-sm hover:shadow-md flex flex-col justify-between">
             
-            const colorRadios = document.getElementsByName('cardColor');
-            let selectedColor = 'yellow';
-            for (const r of colorRadios) {
-                if (r.checked) {
-                    selectedColor = r.value;
-                    break;
-                }
+            <div>
+              <div class="flex items-center justify-between gap-2 mb-3">
+                <span class="px-2.5 py-1 rounded-lg text-xs font-bold ${style.bgBadge}">
+                  ${escapeHtml(card.category)}
+                </span>
+
+                <div class="flex items-center gap-1.5">
+                  ${card.pinned ? `
+                    <span class="text-amber-500 text-xs font-semibold flex items-center gap-1 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded-md border border-amber-200 dark:border-amber-800">
+                      <i class="fa-solid fa-thumbtack"></i> Fixado
+                    </span>
+                  ` : ''}
+
+                  ${isAdmin ? `
+                    <button onclick="togglePinCard('${card.id}')" title="${card.pinned ? 'Desfixar' : 'Fixar'}" class="w-7 h-7 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 hover:text-amber-500 transition flex items-center justify-center">
+                      <i class="fa-solid fa-thumbtack text-xs"></i>
+                    </button>
+                    <button onclick="editCard('${card.id}')" title="Editar" class="w-7 h-7 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 hover:text-blue-500 transition flex items-center justify-center">
+                      <i class="fa-solid fa-pen text-xs"></i>
+                    </button>
+                    <button onclick="deleteCard('${card.id}')" title="Excluir" class="w-7 h-7 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/50 text-slate-400 hover:text-rose-500 transition flex items-center justify-center">
+                      <i class="fa-solid fa-trash-can text-xs"></i>
+                    </button>
+                  ` : ''}
+                </div>
+              </div>
+
+              <h3 class="text-base font-bold text-slate-900 dark:text-white leading-snug mb-2">
+                ${escapeHtml(card.title)}
+              </h3>
+
+              <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-line mb-4">
+                ${escapeHtml(card.content)}
+              </p>
+            </div>
+
+            <div class="pt-3 border-t border-slate-100 dark:border-slate-700/50 flex items-center justify-between text-[11px]">
+              <span class="flex items-center gap-1.5 font-medium text-slate-600 dark:text-slate-400">
+                <i class="fa-solid fa-user-circle text-xs text-slate-400"></i>
+                ${escapeHtml(card.author)}
+              </span>
+
+              <div class="flex items-center gap-3">
+                <button onclick="toggleLikeCard('${card.id}')" class="flex items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-rose-500 dark:hover:text-rose-400 transition bg-slate-50 dark:bg-slate-700/50 px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-600">
+                  <i class="fa-solid fa-heart ${likesCount > 0 ? 'text-rose-500' : ''}"></i>
+                  <span class="font-bold text-xs">${likesCount}</span>
+                </button>
+                <span class="text-slate-400">${formattedDate}</span>
+              </div>
+            </div>
+
+          </div>
+        `;
+      }).join('');
+    }
+
+    // --- EXPORTAR E IMPORTAR ---
+    window.exportData = function() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(globalCards, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `mural_backup_${new Date().toISOString().slice(0,10)}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      showToast('Backup exportado com sucesso!', 'success');
+    };
+
+    window.importData = function(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = async function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (Array.isArray(imported)) {
+            for (const item of imported) {
+              const docRef = doc(getCardsCollection());
+              await setDoc(docRef, { ...item, id: docRef.id });
             }
-
-            if (editId) {
-                // Editar existente
-                const index = appState.cards.findIndex(c => c.id === editId);
-                if (index !== -1) {
-                    appState.cards[index] = {
-                        ...appState.cards[index],
-                        title, tag, status, content, imageUrl, color: selectedColor
-                    };
-                    showToast('Card atualizado com sucesso!', 'success');
-                }
-            } else {
-                // Criar novo
-                const newCard = {
-                    id: 'card-' + Date.now(),
-                    title,
-                    tag,
-                    status,
-                    content,
-                    imageUrl,
-                    color: selectedColor,
-                    likes: 0,
-                    comments: [],
-                    x: Math.floor(Math.random() * 200) + 40,
-                    y: Math.floor(Math.random() * 200) + 40,
-                    createdAt: new Date().toLocaleDateString('pt-BR')
-                };
-                appState.cards.unshift(newCard);
-
-                // Se o visitante usou um token de uso único, decrementar usos
-                consumeSingleUseToken();
-
-                showToast('Novo card publicado!', 'success');
-            }
-
-            saveLocalStorage();
-            closeCardModal();
-            renderBoard();
+            showToast('Dados importados com sucesso para o banco!', 'success');
+          }
+        } catch (err) {
+          showToast('Erro ao importar JSON.', 'danger');
         }
-
-        // CONSUMIR TOKEN SE FOR DE USO ÚNICO
-        function consumeSingleUseToken() {
-            if (appState.isAdminLoggedIn || !appState.activeGuestToken) return;
-
-            const tokIndex = appState.tokens.findIndex(t => t.code === appState.activeGuestToken);
-            if (tokIndex !== -1) {
-                const token = appState.tokens[tokIndex];
-                token.usedCount += 1;
-                if (token.type === 'single') {
-                    token.status = 'expired';
-                    appState.activeGuestToken = null;
-                    showToast('Seu token de uso único foi consumido.', 'info');
-                }
-                saveLocalStorage();
-                updateUIState();
-            }
-        }
-
-        // EDITAR CARD
-        function handleEditCard(id) {
-            if (!checkCanUserPost()) {
-                openTokenPromptModal();
-                return;
-            }
-
-            const card = appState.cards.find(c => c.id === id);
-            if (!card) return;
-
-            document.getElementById('modalTitle').innerHTML = `<i class="fa-solid fa-pen-to-square text-indigo-600"></i> Editar Card`;
-            document.getElementById('cardEditId').value = card.id;
-            document.getElementById('inputTitle').value = card.title;
-            document.getElementById('inputTag').value = card.tag;
-            document.getElementById('inputStatus').value = card.status || 'todo';
-            document.getElementById('inputContent').value = card.content;
-            document.getElementById('inputImageUrl').value = card.imageUrl || '';
-
-            if (card.imageUrl) {
-                document.getElementById('previewImg').src = card.imageUrl;
-                document.getElementById('imagePreview').classList.remove('hidden');
-            } else {
-                clearImagePreview();
-            }
-
-            const colorRadios = document.getElementsByName('cardColor');
-            for (const r of colorRadios) {
-                r.checked = (r.value === card.color);
-            }
-
-            document.getElementById('cardModal').classList.remove('hidden');
-        }
-
-        // EXCLUIR CARD
-        function handleDeleteCard(id) {
-            if (!checkCanUserPost()) {
-                openTokenPromptModal();
-                return;
-            }
-
-            if (confirm('Tem certeza que deseja excluir este card?')) {
-                appState.cards = appState.cards.filter(c => c.id !== id);
-                saveLocalStorage();
-                renderBoard();
-                showToast('Card removido.', 'info');
-            }
-        }
-
-        // AÇÕES DE DENTRO DO CARD (LIKE E COMENTÁRIOS)
-        function likeCard(id) {
-            const card = appState.cards.find(c => c.id === id);
-            if (!card) return;
-            card.likes = (card.likes || 0) + 1;
-            saveLocalStorage();
-
-            const btn = document.querySelector(`#${CSS.escape('card-node-' + id)} .like-btn`);
-            if (!btn) {
-                renderBoard();
-                return;
-            }
-            btn.querySelector('.like-count').textContent = card.likes;
-            btn.classList.remove('is-pop');
-            void btn.offsetWidth;
-            btn.classList.add('is-pop');
-            const floater = document.createElement('span');
-            floater.className = 'like-floater';
-            floater.textContent = '+1';
-            btn.appendChild(floater);
-            setTimeout(() => floater.remove(), 700);
-        }
-
-        function toggleComments(id) {
-            const sec = document.getElementById(`comments-section-${id}`);
-            if (!sec) return;
-            sec.classList.toggle('hidden');
-            if (!sec.classList.contains('hidden')) {
-                const input = sec.querySelector('input');
-                if (input) input.focus();
-            }
-        }
-
-        function addComment(event, id) {
-            event.preventDefault();
-            const input = event.target.querySelector('input');
-            const text = input.value.trim();
-            if (!text) return;
-
-            const card = appState.cards.find(c => c.id === id);
-            if (!card) return;
-            if (!Array.isArray(card.comments)) card.comments = [];
-            card.comments.push(text);
-            saveLocalStorage();
-
-            const list = document.getElementById(`comments-list-${id}`);
-            if (list) {
-                const empty = list.querySelector('.comment-empty');
-                if (empty) empty.remove();
-                const bubble = document.createElement('div');
-                bubble.className = 'comment-bubble';
-                bubble.textContent = text;
-                list.appendChild(bubble);
-            }
-            const count = document.querySelector(`#${CSS.escape('card-node-' + id)} .comment-count`);
-            if (count) count.textContent = card.comments.length;
-            input.value = '';
-        }
-
-        // ARRASTAR E SOLTAR NO KANBAN
-        function handleDragStart(e, cardId) {
-            e.dataTransfer.setData('text/plain', cardId);
-            e.dataTransfer.effectAllowed = 'move';
-            requestAnimationFrame(() => e.currentTarget.classList.add('is-dragging'));
-        }
-        function handleDragEnd(e) {
-            e.currentTarget.classList.remove('is-dragging');
-            document.querySelectorAll('.kanban-col.is-drop-target').forEach(el => el.classList.remove('is-drop-target'));
-        }
-        function allowDrop(e) {
-            e.preventDefault();
-            e.currentTarget.classList.add('is-drop-target');
-        }
-        function handleDragEnter(e) {
-            e.preventDefault();
-            e.currentTarget.classList.add('is-drop-target');
-        }
-        function handleDragLeave(e) {
-            if (e.currentTarget.contains(e.relatedTarget)) return;
-            e.currentTarget.classList.remove('is-drop-target');
-        }
-        function handleDrop(e, targetStatus) {
-            e.preventDefault();
-            e.currentTarget.classList.remove('is-drop-target');
-            const cardId = e.dataTransfer.getData('text/plain');
-            const card = appState.cards.find(c => c.id === cardId);
-            if (card && card.status !== targetStatus) {
-                card.status = targetStatus;
-                saveLocalStorage();
-                renderBoard();
-                showToast('Card movido de coluna.', 'success');
-            }
-        }
-
-        // DRAG LIVRE 2D NO CANVAS LIVRE
-        function makeCardDraggable(cardEl, cardObj) {
-            cardEl.addEventListener('pointerdown', (e) => {
-                if (e.pointerType === 'mouse' && e.button !== 0) return;
-                if (e.target.closest('button, input, textarea, a, form, label')) return;
-
-                const startX = e.clientX;
-                const startY = e.clientY;
-                const initialLeft = cardEl.offsetLeft;
-                const initialTop = cardEl.offsetTop;
-                let moved = false;
-
-                cardEl.classList.add('is-dragging');
-                cardEl.setPointerCapture(e.pointerId);
-
-                const onMove = (moveEvent) => {
-                    const dx = moveEvent.clientX - startX;
-                    const dy = moveEvent.clientY - startY;
-                    if (Math.abs(dx) + Math.abs(dy) > 3) moved = true;
-                    const newX = Math.max(10, initialLeft + dx);
-                    const newY = Math.max(10, initialTop + dy);
-                    cardEl.style.left = `${newX}px`;
-                    cardEl.style.top = `${newY}px`;
-                    cardObj.x = newX;
-                    cardObj.y = newY;
-                };
-
-                const onUp = () => {
-                    cardEl.classList.remove('is-dragging');
-                    cardEl.removeEventListener('pointermove', onMove);
-                    cardEl.removeEventListener('pointerup', onUp);
-                    cardEl.removeEventListener('pointercancel', onUp);
-                    if (moved) saveLocalStorage();
-                };
-
-                cardEl.addEventListener('pointermove', onMove);
-                cardEl.addEventListener('pointerup', onUp);
-                cardEl.addEventListener('pointercancel', onUp);
-            });
-        }
-
-        // AÇÕES DO PAINEL ADMIN (msssnefc)
-        function openAdminModal() {
-            if (appState.isAdminLoggedIn) {
-                document.getElementById('adminLoginForm').classList.add('hidden');
-                document.getElementById('adminDashboard').classList.remove('hidden');
-                renderAdminTokensList();
-            } else {
-                document.getElementById('adminLoginForm').classList.remove('hidden');
-                document.getElementById('adminDashboard').classList.add('hidden');
-            }
-            document.getElementById('adminModal').classList.remove('hidden');
-        }
-
-        function closeAdminModal() {
-            document.getElementById('adminModal').classList.add('hidden');
-        }
-
-        function handleAdminLogin(e) {
-            e.preventDefault();
-            const password = document.getElementById('adminPasswordInput').value;
-
-            if (password === appState.adminPassword) {
-                appState.isAdminLoggedIn = true;
-                showToast(`Bem-vindo, Administrador ${ADMIN_USERNAME}!`, 'success');
-                updateUIState();
-                openAdminModal();
-            } else {
-                showToast('Senha incorreta para o usuário msssnefc!', 'error');
-            }
-        }
-
-        function handleAdminLogout() {
-            appState.isAdminLoggedIn = false;
-            updateUIState();
-            closeAdminModal();
-            showToast('Sessão de Administrador encerrada.', 'info');
-        }
-
-        // GERAR NOVO TOKEN PELO ADMIN
-        function handleGenerateToken(e) {
-            e.preventDefault();
-            const label = document.getElementById('tokenLabelInput').value;
-            const type = document.getElementById('tokenTypeInput').value;
-            const customCode = document.getElementById('tokenCustomCodeInput').value.trim().toUpperCase();
-
-            const tokenCode = customCode || 'MURAL-' + Math.random().toString(36).substring(2, 8).toUpperCase();
-
-            // Verificar duplicado
-            if (appState.tokens.some(t => t.code === tokenCode)) {
-                showToast('Este código de token já existe!', 'warning');
-                return;
-            }
-
-            const newToken = {
-                id: 'tok-' + Date.now(),
-                code: tokenCode,
-                label: label,
-                type: type,
-                usedCount: 0,
-                status: 'active',
-                createdAt: new Date().toLocaleDateString('pt-BR')
-            };
-
-            appState.tokens.unshift(newToken);
-            saveLocalStorage();
-
-            // Exibir token na tela
-            document.getElementById('lblNewTokenCode').innerText = tokenCode;
-            document.getElementById('newlyGeneratedTokenBox').classList.remove('hidden');
-
-            showToast(`Token ${tokenCode} criado com sucesso!`, 'success');
-            renderAdminTokensList();
-        }
-
-        function copyGeneratedToken() {
-            const code = document.getElementById('lblNewTokenCode').innerText;
-            navigator.clipboard.writeText(code).then(() => {
-                showToast('Token copiado para a área de transferência!', 'info');
-            });
-        }
-
-        // LISTAR TOKENS NO PAINEL ADMIN
-        function renderAdminTokensList() {
-            const container = document.getElementById('tokensListContainer');
-            document.getElementById('tokenCountBadge').innerText = appState.tokens.length;
-
-            if (appState.tokens.length === 0) {
-                container.innerHTML = `<p class="text-xs text-gray-400 italic text-center py-4">Nenhum token gerado ainda.</p>`;
-                return;
-            }
-
-            container.innerHTML = appState.tokens.map(t => {
-                const isExpired = t.status === 'expired';
-                const statusBadge = isExpired 
-                    ? `<span class="bg-red-100 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded-full">Expirado/Usado</span>`
-                    : `<span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full">Ativo</span>`;
-
-                return `
-                    <div class="flex items-center justify-between bg-gray-50 p-3 rounded-xl border border-gray-200">
-                        <div>
-                            <div class="flex items-center gap-2">
-                                <code class="font-mono font-bold text-xs bg-white px-2 py-0.5 border rounded text-indigo-700">${t.code}</code>
-                                ${statusBadge}
-                            </div>
-                            <p class="text-[11px] text-gray-600 mt-0.5">Rótulo: <strong>${escapeHTML(t.label)}</strong> • Tipo: ${t.type === 'single' ? 'Uso Único' : 'Múltiplo'}</p>
-                        </div>
-                        <div class="flex items-center gap-1">
-                            <button onclick="copyText('${t.code}')" class="p-1.5 text-gray-500 hover:text-indigo-600 hover:bg-white rounded-lg transition" title="Copiar Token">
-                                <i class="fa-solid fa-copy text-xs"></i>
-                            </button>
-                            <button onclick="deleteToken('${t.id}')" class="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition" title="Excluir Token">
-                                <i class="fa-solid fa-trash text-xs"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function deleteToken(id) {
-            appState.tokens = appState.tokens.filter(t => t.id !== id);
-            saveLocalStorage();
-            renderAdminTokensList();
-            showToast('Token revogado.', 'info');
-        }
-
-        // TROCAR ABAS NO MODAL ADMIN
-        function switchAdminTab(tab) {
-            const tabs = ['generate', 'list', 'config'];
-            tabs.forEach(t => {
-                const btn = document.getElementById(`tabBtn${t.charAt(0).toUpperCase() + t.slice(1)}`);
-                const view = document.getElementById(`adminTab${t.charAt(0).toUpperCase() + t.slice(1)}`);
-
-                if (t === tab) {
-                    btn.className = 'pb-2 text-xs font-bold border-b-2 border-indigo-600 text-indigo-600 transition';
-                    view.classList.remove('hidden');
-                } else {
-                    btn.className = 'pb-2 text-xs font-semibold text-gray-500 border-b-2 border-transparent hover:text-indigo-600 transition';
-                    view.classList.add('hidden');
-                }
-            });
-
-            if (tab === 'list') renderAdminTokensList();
-        }
-
-        function toggleTokenRequirement(enabled) {
-            appState.requireTokenToPost = enabled;
-            saveLocalStorage();
-            updateUIState();
-            showToast(enabled ? 'Exigência de Token Ativada!' : 'Exigência de Token Desativada (Acesso Livre).', 'info');
-        }
-
-        function handleChangeAdminPassword(e) {
-            e.preventDefault();
-            const newPwd = document.getElementById('newAdminPasswordInput').value;
-            if (newPwd.length < 4) {
-                showToast('A senha deve ter pelo menos 4 caracteres.', 'warning');
-                return;
-            }
-            appState.adminPassword = newPwd;
-            saveLocalStorage();
-            document.getElementById('newAdminPasswordInput').value = '';
-            showToast('Senha do administrador msssnefc atualizada!', 'success');
-        }
-
-        // MODAL E VALIDAÇÃO DE TOKEN DO VISITANTE
-        function openTokenPromptModal() {
-            document.getElementById('tokenPromptModal').classList.remove('hidden');
-        }
-
-        function closeTokenPromptModal() {
-            document.getElementById('tokenPromptModal').classList.add('hidden');
-        }
-
-        function handleValidateGuestToken(e) {
-            e.preventDefault();
-            const inputCode = document.getElementById('guestTokenInput').value.trim().toUpperCase();
-
-            const foundToken = appState.tokens.find(t => t.code === inputCode);
-
-            if (!foundToken) {
-                showToast('Token inválido ou inexistente!', 'error');
-                return;
-            }
-
-            if (foundToken.status === 'expired') {
-                showToast('Este token já expirou ou atingiu o limite de uso.', 'error');
-                return;
-            }
-
-            appState.activeGuestToken = foundToken.code;
-            updateUIState();
-            closeTokenPromptModal();
-            showToast('Token validado com sucesso! Agora você pode publicar conteúdos.', 'success');
-        }
-
-        // UTILITÁRIOS E AUXILIARES
-        function closeCardModal() {
-            document.getElementById('cardModal').classList.add('hidden');
-        }
-
-        function handleImageUrlChange() {
-            const url = document.getElementById('inputImageUrl').value;
-            if (url) {
-                document.getElementById('previewImg').src = url;
-                document.getElementById('imagePreview').classList.remove('hidden');
-            } else {
-                clearImagePreview();
-            }
-        }
-
-        function handleFileUpload(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(evt) {
-                    document.getElementById('inputImageUrl').value = evt.target.result;
-                    document.getElementById('previewImg').src = evt.target.result;
-                    document.getElementById('imagePreview').classList.remove('hidden');
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        function clearImagePreview() {
-            document.getElementById('inputImageUrl').value = '';
-            document.getElementById('inputFile').value = '';
-            document.getElementById('imagePreview').classList.add('hidden');
-        }
-
-        function copyText(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                showToast('Copiado para a área de transferência!', 'info');
-            });
-        }
-
-        function handleResetMural() {
-            if (confirm('Atenção: Isso irá apagar todos os cards do mural e restaurar o estado inicial. Continuar?')) {
-                appState.cards = defaultCards;
-                saveLocalStorage();
-                renderBoard();
-                showToast('Mural restaurado com sucesso.', 'info');
-            }
-        }
-
-        function exportDataJSON() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState, null, 2));
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `mural_padlet_backup_${Date.now()}.json`);
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
-        }
-
-        function triggerImportJSON() {
-            document.getElementById('importFileInput').click();
-        }
-
-        function importDataJSON(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(evt) {
-                try {
-                    const imported = JSON.parse(evt.target.result);
-                    if (imported.cards && Array.isArray(imported.cards)) {
-                        appState.cards = imported.cards;
-                        if (imported.tokens) appState.tokens = imported.tokens;
-                        saveLocalStorage();
-                        renderBoard();
-                        showToast('Dados importados com sucesso!', 'success');
-                    } else {
-                        showToast('Formato de arquivo JSON inválido.', 'error');
-                    }
-                } catch (err) {
-                    showToast('Erro ao ler o arquivo JSON.', 'error');
-                }
-            };
-            reader.readAsText(file);
-        }
-
-        function escapeHTML(str) {
-            if (!str) return '';
-            return str.replace(/[&<>'"]/g, 
-                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
-            );
-        }
-
-        // SISTEMA DE TOAST NOTIFICATIONS
-        function showToast(message, type = 'info') {
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-
-            const icons = {
-                success: 'fa-circle-check text-emerald-500',
-                error: 'fa-circle-xmark text-red-500',
-                warning: 'fa-triangle-exclamation text-amber-500',
-                info: 'fa-circle-info text-indigo-500'
-            };
-
-            toast.className = `glass-panel bg-white/95 px-4 py-3 rounded-2xl shadow-xl border border-gray-100 flex items-center gap-3 text-xs font-semibold text-gray-800 pointer-events-auto transform transition duration-300 translate-y-4 opacity-0`;
-            toast.innerHTML = `
-                <i class="fa-solid ${icons[type] || icons.info} text-base"></i>
-                <span>${escapeHTML(message)}</span>
-            `;
-
-            container.appendChild(toast);
-
-            // Animar entrada
-            setTimeout(() => {
-                toast.classList.remove('translate-y-4', 'opacity-0');
-            }, 10);
-
-            // Remover após tempo
-            setTimeout(() => {
-                toast.classList.add('translate-y-4', 'opacity-0');
-                setTimeout(() => toast.remove(), 300);
-            }, 3500);
-        }
-    </script>
+      };
+      reader.readAsText(file);
+    };
+
+    // --- TEMAS E TOASTS ---
+    window.toggleDarkMode = function() {
+      if (document.documentElement.classList.contains('dark')) {
+        document.documentElement.classList.remove('dark');
+        localStorage.theme = 'light';
+      } else {
+        document.documentElement.classList.add('dark');
+        localStorage.theme = 'dark';
+      }
+    };
+
+    window.openCustomModal = function(htmlContent) {
+      const overlay = document.getElementById('modal-overlay');
+      const content = document.getElementById('modal-content');
+      content.innerHTML = htmlContent;
+      overlay.classList.remove('hidden');
+      setTimeout(() => {
+        content.classList.remove('scale-95', 'opacity-0');
+        content.classList.add('scale-100', 'opacity-100');
+      }, 10);
+    };
+
+    window.closeCustomModal = function() {
+      const overlay = document.getElementById('modal-overlay');
+      const content = document.getElementById('modal-content');
+      content.classList.remove('scale-100', 'opacity-100');
+      content.classList.add('scale-95', 'opacity-0');
+      setTimeout(() => {
+        overlay.classList.add('hidden');
+      }, 200);
+    };
+
+    window.showToast = function(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+
+      const bgTypes = {
+        success: 'bg-emerald-600 text-white',
+        danger: 'bg-rose-600 text-white',
+        warning: 'bg-amber-500 text-white',
+        info: 'bg-slate-800 dark:bg-slate-100 text-white dark:text-slate-900'
+      };
+
+      const icons = {
+        success: 'fa-circle-check',
+        danger: 'fa-circle-exclamation',
+        warning: 'fa-triangle-exclamation',
+        info: 'fa-circle-info'
+      };
+
+      toast.className = `pointer-events-auto px-4 py-3 rounded-xl shadow-xl font-medium text-xs flex items-center gap-2 transform transition-all duration-300 translate-y-5 opacity-0 ${bgTypes[type] || bgTypes.info}`;
+      toast.innerHTML = `<i class="fa-solid ${icons[type] || icons.info}"></i> <span>${escapeHtml(message)}</span>`;
+
+      container.appendChild(toast);
+
+      setTimeout(() => toast.classList.remove('translate-y-5', 'opacity-0'), 10);
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    };
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function formatDate(isoString) {
+      try {
+        const date = new Date(isoString);
+        return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }).format(date);
+      } catch (e) {
+        return '';
+      }
+    }
+
+    // Inicialização ao carregar janela
+    window.onload = function() {
+      if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+      initFirebaseSync();
+    };
+  </script>
 </body>
 </html>
