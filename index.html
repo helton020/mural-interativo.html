@@ -238,7 +238,7 @@
   <!-- RODAPÉ -->
   <footer class="mt-auto border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-4 text-center text-xs text-slate-500 dark:text-slate-400">
     <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-2">
-      <p>© Mural Interativo Dinâmico - Sincronizado para todos os visitantes simultaneamente.</p>
+      <p>© Mural Interativo Dinâmico - Sincronizado para todos os visitantes simultaneamente. <span id="app-version" class="opacity-60"></span></p>
       <p class="flex items-center gap-1">
         <span id="footer-dot" class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
         <span id="footer-sync">Conectando...</span>
@@ -250,7 +250,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInAnonymously, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, doc, setDoc, updateDoc, deleteDoc, onSnapshot, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, doc, setDoc, updateDoc, deleteDoc, onSnapshot, getDocs, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     // --- CONFIGURAÇÃO FIREBASE E VARIÁVEIS GLOBAIS ---
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'mural-interativo-default';
@@ -283,6 +283,13 @@
     let selectedCategoryFilter = 'ALL';
     let currentColor = 'blue';
     let unsubscribeCards = null;
+    let resubscribeTimer = null;
+    let lastServerRefresh = 0;
+    let syncMode = 'connecting';
+
+    // Versão do app: deve ser igual ao conteúdo de version.txt.
+    // A cada publicação, atualize os dois para os clientes se auto-atualizarem.
+    const APP_VERSION = '2026-11-05-2';
 
     // Coleção pública do Firestore
     const getCardsCollection = () => collection(db, 'artifacts', appId, 'public', 'data', 'mural_cards');
@@ -290,6 +297,7 @@
 
     // --- STATUS DE SINCRONIZAÇÃO ---
     function setSyncStatus(mode) {
+      syncMode = mode;
       const status = {
         online: {
           classes: 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300',
@@ -384,29 +392,92 @@
       });
 
       window.addEventListener('offline', () => setSyncStatus('local'));
-      window.addEventListener('online', () => setSyncStatus('connecting'));
+      window.addEventListener('online', () => {
+        setSyncStatus('connecting');
+        subscribeToCards();
+        refreshCardsFromServer();
+      });
+
+      // Ao voltar para a aba (celular/PC), confirma se perdeu alguma atualização
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) return;
+        refreshCardsFromServer();
+        if (syncMode !== 'online') subscribeToCards();
+      });
     }
 
     function subscribeToCards() {
-      if (unsubscribeCards || !db) return;
+      if (!db) return;
+      if (unsubscribeCards) {
+        try { unsubscribeCards(); } catch (_) {}
+        unsubscribeCards = null;
+      }
 
       unsubscribeCards = onSnapshot(
         getCardsCollection(),
         (snapshot) => {
           globalCards = snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
           localStorage.setItem('mural_interativo_backup', JSON.stringify(globalCards));
+          lastServerRefresh = Date.now();
           setSyncStatus('online');
           renderCards();
         },
         (error) => {
           console.error('Erro na escuta do Firestore:', error);
+          unsubscribeCards = null;
           setSyncStatus('local');
           loadFallbackLocalCards();
           if (error.code === 'permission-denied') {
             showToast('Sem permissão de leitura no Firestore. Confira as regras.', 'danger');
+            scheduleResubscribe(30000);
+          } else {
+            scheduleResubscribe(5000);
           }
         }
       );
+    }
+
+    function scheduleResubscribe(delay) {
+      if (resubscribeTimer || !FIREBASE_CONFIGURADO) return;
+      resubscribeTimer = setTimeout(() => {
+        resubscribeTimer = null;
+        subscribeToCards();
+      }, delay);
+    }
+
+    async function refreshCardsFromServer() {
+      if (!db) return;
+      const now = Date.now();
+      if (now - lastServerRefresh < 10000) return;
+      lastServerRefresh = now;
+
+      try {
+        const snapshot = await getDocs(getCardsCollection());
+        globalCards = snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
+        localStorage.setItem('mural_interativo_backup', JSON.stringify(globalCards));
+        setSyncStatus('online');
+        renderCards();
+      } catch (err) {
+        console.warn('Falha ao atualizar os cards sob demanda:', err);
+      }
+    }
+
+    // --- AUTO-ATUALIZAÇÃO DE VERSÃO ---
+    // Evita que uma aba continue rodando o HTML antigo depois de um deploy.
+    async function checkForNewVersion() {
+      try {
+        const res = await fetch(`version.txt?t=${Date.now()}`, { cache: 'no-store' });
+        if (!res.ok) return;
+        const latest = (await res.text()).trim();
+        if (latest && latest !== APP_VERSION) {
+          showToast('Nova versão disponível. Atualizando a página...', 'info');
+          const url = new URL(location.href);
+          url.searchParams.set('v', Date.now());
+          setTimeout(() => location.replace(url.toString()), 1200);
+        }
+      } catch (_) {
+        // offline: tenta novamente na próxima verificação
+      }
     }
 
     function loadFallbackLocalCards() {
@@ -992,6 +1063,15 @@
         document.documentElement.classList.remove('dark');
       }
       initFirebase();
+
+      const versionEl = document.getElementById('app-version');
+      if (versionEl) versionEl.textContent = `· v${APP_VERSION}`;
+
+      checkForNewVersion();
+      setInterval(checkForNewVersion, 5 * 60 * 1000);
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) checkForNewVersion();
+      });
     };
   </script>
 </body>
