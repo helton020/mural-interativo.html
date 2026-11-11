@@ -3,103 +3,216 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mural Interativo Dinâmico em Tempo Real</title>
+  <title>Mural Dinâmico da Escola Jandyra</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              50: '#f0f7ff',
-              100: '#e0effe',
-              500: '#3b82f6',
-              600: '#2563eb',
-              700: '#1d4ed8',
-            }
-          }
-        }
-      }
+      darkMode: 'class'
     }
   </script>
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <!-- Font Inter -->
+  <!-- Font Nunito -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --paper: #f4efe4;
+      --ink: #2c2416;
+      --muted: #6d6254;
+      --card: #fffdf8;
+      --line: #e4d9c4;
+      --school: #1b5e45;
+      --school-deep: #154a37;
+      --dot: rgba(27, 94, 69, 0.09);
+    }
+    .dark {
+      --paper: #17211c;
+      --ink: #f3ead8;
+      --muted: #cbbda6;
+      --card: #2c261c;
+      --line: #4a4034;
+      --school: #2f8a66;
+      --school-deep: #246e51;
+      --dot: rgba(243, 234, 216, 0.06);
+    }
     body {
-      font-family: 'Inter', sans-serif;
+      font-family: 'Nunito', sans-serif;
+      background-color: var(--paper);
+      background-image: radial-gradient(var(--dot) 1.1px, transparent 1.1px);
+      background-size: 18px 18px;
+      color: var(--ink);
     }
     .card-transition {
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .custom-scrollbar::-webkit-scrollbar {
+    .card-transition:hover {
+      transform: translateY(-2px);
+    }
+    .school-header {
+      background: #1b5e45;
+      color: #f7f3ea;
+      border-bottom: 4px solid #e8a317;
+    }
+    .school-header-btn {
+      border: 1px solid rgba(247, 243, 234, 0.35);
+      color: #f7f3ea;
+      background: transparent;
+    }
+    .school-header-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+    .school-panel {
+      background: #e7f2eb;
+      border: 1px solid #b7d4c4;
+      border-radius: 1.25rem;
+    }
+    .dark .school-panel {
+      background: #1e2c26;
+      border-color: #345246;
+    }
+    .paper-surface {
+      background: var(--card);
+      border: 1px solid var(--line);
+      color: var(--ink);
+      box-shadow: 0 8px 18px rgba(44, 36, 22, 0.06);
+    }
+    .school-field {
+      width: 100%;
+      border-radius: 0.75rem;
+      border: 1px solid var(--line);
+      background: var(--card);
+      color: var(--ink);
+      font-size: 0.875rem;
+    }
+    .school-field:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px var(--school);
+    }
+    .school-btn {
+      background: var(--school);
+      color: #fff;
+    }
+    .school-btn:hover {
+      background: var(--school-deep);
+    }
+    .school-label {
+      color: var(--muted);
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .notice-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background: var(--card);
+      color: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 2px 16px 16px 16px;
+      box-shadow: 0 10px 22px rgba(44, 36, 22, 0.08);
+      padding: 1.15rem 1.15rem 0.85rem;
+      overflow: hidden;
+    }
+    .notice-stripe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 7px;
+    }
+    .notice-pin {
+      position: absolute;
+      top: 1px;
+      left: 50%;
+      width: 14px;
+      height: 14px;
+      transform: translateX(-50%);
+      border-radius: 999px;
+      background: radial-gradient(circle at 35% 35%, #ffe08a, #e8a317 55%, #b47b0c);
+      box-shadow: 0 2px 0 rgba(90, 58, 8, 0.35);
+      z-index: 1;
+    }
+    .chip {
+      padding: 0.375rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      white-space: nowrap;
+      background: var(--card);
+      color: var(--ink);
+      border: 1px solid var(--line);
+    }
+    .chip-active {
+      background: #1b5e45;
+      color: #fff;
+      border-color: #1b5e45;
+    }
+    @media (max-width: 639px) {
+      #admin-badge { display: none !important; }
+    }
       width: 6px;
       height: 6px;
     }
     .custom-scrollbar::-webkit-scrollbar-track {
-      background: rgba(0, 0, 0, 0.05);
+      background: rgba(44, 36, 22, 0.05);
     }
     .custom-scrollbar::-webkit-scrollbar-thumb {
-      background: rgba(156, 163, 175, 0.5);
+      background: rgba(27, 94, 69, 0.35);
       border-radius: 9999px;
     }
   </style>
 </head>
-<body class="h-full bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 flex flex-col transition-colors duration-200">
+<body class="h-full flex flex-col transition-colors duration-200">
 
   <!-- NOTIFICAÇÃO TOAST CONTAINER -->
   <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
   <!-- MODAL DE CONFIRMAÇÃO E EDIT -> CUSTOM DIALOG -->
-  <div id="modal-overlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 hidden flex items-center justify-center p-4">
-    <div id="modal-content" class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-lg w-full p-6 border border-slate-200 dark:border-slate-700 transform transition-all scale-95 opacity-0 duration-200">
+  <div id="modal-overlay" class="fixed inset-0 bg-[#2c2416]/55 backdrop-blur-sm z-40 hidden flex items-center justify-center p-4">
+    <div id="modal-content" class="paper-surface rounded-2xl shadow-2xl max-w-lg w-full p-6 transform transition-all scale-95 opacity-0 duration-200">
       <!-- Injetado via JS -->
     </div>
   </div>
 
   <!-- NAV BAR -->
-  <header class="sticky top-0 z-30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+  <header class="school-header sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between gap-3">
       <!-- Logo e Título -->
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
-          <i class="fa-solid fa-satellite-dish text-lg animate-pulse"></i>
-        </div>
-        <div>
-          <h1 class="font-bold text-lg leading-tight tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
-            Mural Interativo
-            <span id="sync-indicator" class="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 font-semibold flex items-center gap-1">
+      <div class="flex items-center gap-3 min-w-0">
+        <img src="IMG-20261008-WA0002.jpeg" alt="EE Professora Jandyra Nery Gatti" class="h-14 w-14 shrink-0 rounded-xl bg-white object-contain shadow-md" />
+        <div class="min-w-0">
+          <h1 class="font-extrabold text-sm sm:text-lg leading-tight tracking-tight text-[#f7f3ea] flex items-center gap-2">
+            <span>Mural Dinâmico da Escola Jandyra</span>
+            <span id="sync-indicator" class="hidden sm:inline-flex text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 font-semibold items-center gap-1 shrink-0">
               <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
               Conectando
             </span>
           </h1>
-          <p class="text-xs text-slate-500 dark:text-slate-400">Quadros, Avisos & Reações Conectadas</p>
+          <p class="text-xs text-[#f7f3ea]/80 truncate">Avisos, eventos e recados da escola</p>
         </div>
       </div>
 
       <!-- Ações Header -->
-      <div class="flex items-center gap-2 sm:gap-3">
+      <div class="flex items-center gap-2 shrink-0">
         <!-- Indicador de Status do Modo Admin -->
-        <div id="admin-badge" class="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-700/50">
+        <div id="admin-badge" class="hidden items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-900 border border-amber-200">
           <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-          Modo Admin Ativo
+          Coordenação
         </div>
 
         <!-- Botão Toggle Admin -->
-        <button id="btn-toggle-admin" onclick="toggleAdminMode()" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2 transition">
-          <i class="fa-solid fa-user-shield text-blue-600 dark:text-blue-400"></i>
-          <span id="btn-admin-text">Entrar como Admin</span>
+        <button id="btn-toggle-admin" onclick="toggleAdminMode()" class="school-header-btn px-2.5 sm:px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 transition" title="Entrar como administrador">
+          <i class="fa-solid fa-user-shield"></i>
+          <span id="btn-admin-text" class="hidden sm:inline">Entrar como administrador</span>
         </button>
 
         <!-- Toggle Modo Escuro -->
-        <button onclick="toggleDarkMode()" class="w-10 h-10 rounded-xl border border-slate-300 dark:border-slate-700 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 transition text-slate-600 dark:text-slate-300" title="Alternar tema">
-          <i class="fa-solid fa-sun hidden dark:inline text-amber-400"></i>
-          <i class="fa-solid fa-moon inline dark:hidden text-slate-600"></i>
+        <button onclick="toggleDarkMode()" class="school-header-btn w-10 h-10 rounded-xl flex items-center justify-center transition shrink-0" title="Alternar tema">
+          <i class="fa-solid fa-sun hidden dark:inline text-amber-300"></i>
+          <i class="fa-solid fa-moon inline dark:hidden"></i>
         </button>
       </div>
     </div>
@@ -109,20 +222,20 @@
   <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex flex-col gap-6">
 
     <!-- ESTATÍSTICAS E FERRAMENTAS DO ADMIN (visível apenas para admin) -->
-    <div id="admin-tools-panel" class="hidden flex-col gap-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800/80 dark:to-slate-800/40 border border-blue-200/80 dark:border-slate-700 p-4 sm:p-6 rounded-2xl">
+    <div id="admin-tools-panel" class="school-panel hidden flex-col gap-4 p-4 sm:p-6">
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <i class="fa-solid fa-sliders text-blue-600 dark:text-blue-400"></i>
-            Painel de Controle do Administrador
+          <h2 class="text-base font-extrabold flex items-center gap-2">
+            <i class="fa-solid fa-chalkboard-user" style="color: var(--school)"></i>
+            Mesa da coordenação
           </h2>
-          <p class="text-xs text-slate-500 dark:text-slate-400">Crie cartões visíveis para todos os usuários em tempo real.</p>
+          <p class="text-xs mt-1" style="color: var(--muted)">Publique avisos que toda a escola vê ao mesmo tempo.</p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
-          <button onclick="exportData()" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-600 flex items-center gap-1.5 shadow-sm transition">
+          <button onclick="exportData()" class="paper-surface px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
             <i class="fa-solid fa-download"></i> Exportar JSON
           </button>
-          <label class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-600 flex items-center gap-1.5 shadow-sm cursor-pointer transition">
+          <label class="paper-surface px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition">
             <i class="fa-solid fa-upload"></i> Importar JSON
             <input type="file" id="import-file" accept=".json" class="hidden" onchange="importData(event)" />
           </label>
@@ -130,59 +243,59 @@
       </div>
 
       <!-- FORMULÁRIO DE CRIAÇÃO DE CARD -->
-      <form id="create-card-form" onsubmit="handleCreateCard(event)" class="mt-2 bg-white dark:bg-slate-800 p-4 sm:p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col gap-4">
-        <h3 class="text-sm font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2">
-          <i class="fa-solid fa-plus-circle text-blue-600"></i> Criar Novo Card Global
+      <form id="create-card-form" onsubmit="handleCreateCard(event)" class="paper-surface mt-2 p-4 sm:p-5 rounded-xl flex flex-col gap-4">
+        <h3 class="text-sm font-extrabold flex items-center gap-2">
+          <i class="fa-solid fa-plus-circle" style="color: var(--school)"></i> Novo aviso
         </h3>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <!-- Título -->
           <div class="sm:col-span-2 lg:col-span-1">
-            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Título do Card *</label>
-            <input type="text" id="card-title" required placeholder="Ex: Reunião de Alinhamento" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <label class="school-label block mb-1">Título do aviso *</label>
+            <input type="text" id="card-title" required placeholder="Ex: Reunião pedagógica" class="school-field px-3 py-2" />
           </div>
 
           <!-- Categoria -->
           <div>
-            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Categoria / Tag *</label>
-            <input type="text" id="card-category" required placeholder="Ex: Avisos, Eventos, Tarefas" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <label class="school-label block mb-1">Categoria *</label>
+            <input type="text" id="card-category" required placeholder="Ex: Avisos, Eventos, Tarefas" class="school-field px-3 py-2" />
           </div>
 
           <!-- Autor -->
           <div>
-            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Autor / Responsável</label>
-            <input type="text" id="card-author" placeholder="Ex: Admin, RH, Equipe T.I." class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <label class="school-label block mb-1">Quem publica</label>
+            <input type="text" id="card-author" placeholder="Ex: Coordenação, Professor, Direção" class="school-field px-3 py-2" />
           </div>
         </div>
 
         <!-- Conteúdo -->
         <div>
-          <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Conteúdo do Card *</label>
-          <textarea id="card-content" required rows="3" placeholder="Escreva a descrição completa da publicação..." class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 custom-scrollbar"></textarea>
+          <label class="school-label block mb-1">Texto do aviso *</label>
+          <textarea id="card-content" required rows="3" placeholder="Escreva o recado para a escola..." class="school-field px-3 py-2 custom-scrollbar"></textarea>
         </div>
 
         <!-- Seletor de Cores e Fixado -->
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pt-1">
           <div class="flex items-center gap-3">
-            <span class="text-xs font-medium text-slate-600 dark:text-slate-300">Cor de Destaque:</span>
+            <span class="school-label">Cor da faixa:</span>
             <div class="flex items-center gap-2" id="color-picker-container">
-              <button type="button" onclick="selectColor('blue')" data-color="blue" class="color-btn w-7 h-7 rounded-full bg-blue-500 ring-2 ring-offset-2 ring-blue-500 dark:ring-offset-slate-800 transition"></button>
-              <button type="button" onclick="selectColor('emerald')" data-color="emerald" class="color-btn w-7 h-7 rounded-full bg-emerald-500 ring-offset-2 dark:ring-offset-slate-800 transition"></button>
-              <button type="button" onclick="selectColor('amber')" data-color="amber" class="color-btn w-7 h-7 rounded-full bg-amber-500 ring-offset-2 dark:ring-offset-slate-800 transition"></button>
-              <button type="button" onclick="selectColor('rose')" data-color="rose" class="color-btn w-7 h-7 rounded-full bg-rose-500 ring-offset-2 dark:ring-offset-slate-800 transition"></button>
-              <button type="button" onclick="selectColor('purple')" data-color="purple" class="color-btn w-7 h-7 rounded-full bg-purple-500 ring-offset-2 dark:ring-offset-slate-800 transition"></button>
+              <button type="button" onclick="selectColor('blue')" data-color="blue" class="color-btn w-7 h-7 rounded-full bg-blue-500 ring-2 ring-offset-2 ring-blue-500 transition" style="--tw-ring-offset-color: var(--card)"></button>
+              <button type="button" onclick="selectColor('emerald')" data-color="emerald" class="color-btn w-7 h-7 rounded-full bg-emerald-500 ring-offset-2 transition" style="--tw-ring-offset-color: var(--card)"></button>
+              <button type="button" onclick="selectColor('amber')" data-color="amber" class="color-btn w-7 h-7 rounded-full bg-amber-500 ring-offset-2 transition" style="--tw-ring-offset-color: var(--card)"></button>
+              <button type="button" onclick="selectColor('rose')" data-color="rose" class="color-btn w-7 h-7 rounded-full bg-rose-500 ring-offset-2 transition" style="--tw-ring-offset-color: var(--card)"></button>
+              <button type="button" onclick="selectColor('purple')" data-color="purple" class="color-btn w-7 h-7 rounded-full bg-purple-500 ring-offset-2 transition" style="--tw-ring-offset-color: var(--card)"></button>
             </div>
             <input type="hidden" id="selected-color" value="blue" />
           </div>
 
           <div class="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
-            <label class="flex items-center gap-2 text-xs font-medium text-slate-700 dark:text-slate-300 cursor-pointer select-none">
-              <input type="checkbox" id="card-pinned" class="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500" />
-              <i class="fa-solid fa-thumbtack text-amber-500"></i> Fixar no Topo
+            <label class="flex items-center gap-2 text-xs font-bold cursor-pointer select-none">
+              <input type="checkbox" id="card-pinned" class="w-4 h-4 rounded" style="accent-color: var(--school)" />
+              <i class="fa-solid fa-thumbtack text-amber-500"></i> Fixar no topo
             </label>
 
-            <button type="submit" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm shadow-lg shadow-blue-500/30 flex items-center gap-2 transition active:scale-95">
-              <i class="fa-solid fa-paper-plane"></i> Publicar Card Global
+            <button type="submit" class="school-btn px-5 py-2.5 rounded-xl font-extrabold text-sm shadow-md flex items-center gap-2 transition active:scale-95">
+              <i class="fa-solid fa-paper-plane"></i> Publicar aviso
             </button>
           </div>
         </div>
@@ -190,12 +303,12 @@
     </div>
 
     <!-- CONTROLES DE BUSCA E FILTROS DO VISITANTE -->
-    <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+    <div class="paper-surface flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 p-4 rounded-2xl">
       
       <!-- Campo de Busca -->
       <div class="relative flex-1">
-        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-        <input type="text" id="search-input" oninput="renderCards()" placeholder="Buscar por título, conteúdo ou autor em tempo real..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-sm" style="color: var(--muted)"></i>
+        <input type="text" id="search-input" oninput="renderCards()" placeholder="Buscar por título, texto ou quem publicou..." class="school-field pl-10 pr-4 py-2.5" />
       </div>
 
       <!-- Filtro por Categoria -->
@@ -205,13 +318,13 @@
     </div>
 
     <!-- CABEÇALHO DO MURAL COM CONTADOR -->
-    <div class="flex justify-between items-center px-1">
+    <div class="flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center px-1">
       <div class="flex items-center gap-2">
-        <h2 class="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Publicações Ao Vivo</h2>
-        <span id="card-count" class="px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold">0</span>
+        <h2 class="text-sm font-extrabold uppercase tracking-wider" style="color: var(--school)">Mural de avisos</h2>
+        <span id="card-count" class="px-2 py-0.5 rounded-full text-xs font-extrabold" style="background: #1b5e45; color: #fff">0</span>
       </div>
-      <div class="text-xs text-slate-400 flex items-center gap-1">
-        <i class="fa-solid fa-bolt text-amber-400"></i>
+      <div class="text-xs flex items-center gap-1" style="color: var(--muted)">
+        <i class="fa-solid fa-bolt text-amber-500"></i>
         <span id="sync-detail">Conectando ao servidor...</span>
       </div>
     </div>
@@ -222,25 +335,25 @@
     </div>
 
     <!-- ESTADO VAZIO (EMPTY STATE) -->
-    <div id="empty-state" class="hidden flex-col items-center justify-center py-16 px-4 text-center border-2 border-dashed border-slate-300 dark:border-slate-800 rounded-3xl">
-      <div class="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 mb-4 text-2xl">
-        <i class="fa-solid fa-folder-open"></i>
+    <div id="empty-state" class="hidden flex-col items-center justify-center py-16 px-4 text-center border-2 border-dashed rounded-3xl" style="border-color: var(--line)">
+      <div class="w-16 h-16 rounded-full flex items-center justify-center mb-4 text-2xl" style="background: var(--card); color: var(--school)">
+        <i class="fa-solid fa-note-sticky"></i>
       </div>
-      <h3 class="text-base font-semibold text-slate-700 dark:text-slate-300">Nenhum card encontrado</h3>
-      <p class="text-xs text-slate-500 dark:text-slate-400 max-w-sm mt-1">Não há publicações correspondentes ou o banco ainda não recebeu novos cartões.</p>
-      <button id="empty-action-btn" onclick="clearFilters()" class="mt-4 px-4 py-2 rounded-xl text-xs font-semibold bg-blue-50 dark:bg-slate-800 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-slate-700 transition">
-        Limpar Filtros de Busca
+      <h3 class="text-base font-extrabold">Nenhum aviso encontrado</h3>
+      <p class="text-sm max-w-sm mt-1" style="color: var(--muted)">Não há avisos com essa busca, ou o mural ainda está vazio.</p>
+      <button id="empty-action-btn" onclick="clearFilters()" class="school-btn mt-4 px-4 py-2 rounded-xl text-xs font-extrabold transition">
+        Limpar busca
       </button>
     </div>
 
   </main>
 
   <!-- RODAPÉ -->
-  <footer class="mt-auto border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-4 text-center text-xs text-slate-500 dark:text-slate-400">
+  <footer class="mt-auto py-4 text-center text-xs" style="background: #1b5e45; color: #f7f3ea">
     <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-2">
-      <p>© Mural Interativo Dinâmico - Sincronizado para todos os visitantes simultaneamente. <span id="app-version" class="opacity-60"></span></p>
+      <p>Mural da escola. Os avisos aparecem para todos ao mesmo tempo. <span id="app-version" class="opacity-70"></span></p>
       <p class="flex items-center gap-1">
-        <span id="footer-dot" class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span id="footer-dot" class="w-2 h-2 rounded-full bg-amber-300 animate-pulse"></span>
         <span id="footer-sync">Conectando...</span>
       </p>
     </div>
@@ -300,28 +413,28 @@
       syncMode = mode;
       const status = {
         online: {
-          classes: 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300',
+          classes: 'bg-[#f7f3ea] text-[#1b5e45]',
           dot: 'bg-emerald-500 animate-ping',
           text: 'Tempo Real',
-          detail: 'Sincronização ativa — todos veem as mesmas publicações',
-          footerDot: 'bg-emerald-500 animate-pulse',
-          footer: 'Conectado ao Firebase em tempo real'
+          detail: 'Todos veem os mesmos avisos',
+          footerDot: 'bg-amber-300 animate-pulse',
+          footer: 'Mural conectado'
         },
         connecting: {
-          classes: 'bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300',
+          classes: 'bg-amber-100 text-amber-900',
           dot: 'bg-amber-500 animate-pulse',
           text: 'Conectando',
-          detail: 'Conectando ao servidor...',
-          footerDot: 'bg-amber-500 animate-pulse',
-          footer: 'Conectando ao Firebase...'
+          detail: 'Conectando o mural...',
+          footerDot: 'bg-amber-300 animate-pulse',
+          footer: 'Conectando o mural...'
         },
         local: {
-          classes: 'bg-rose-100 dark:bg-rose-900/50 text-rose-600 dark:text-rose-400',
+          classes: 'bg-rose-100 text-rose-700',
           dot: 'bg-rose-500',
-          text: 'Modo Local',
-          detail: 'Sem servidor — os cards ficam apenas neste navegador',
-          footerDot: 'bg-rose-500',
-          footer: 'Modo local — dados apenas neste navegador'
+          text: 'Neste aparelho',
+          detail: 'Sem conexão — os avisos ficam só neste navegador',
+          footerDot: 'bg-rose-300',
+          footer: 'Somente neste navegador'
         }
       }[mode];
 
@@ -333,7 +446,7 @@
       const footerSync = document.getElementById('footer-sync');
 
       if (indicator) {
-        indicator.className = `text-[10px] px-2 py-0.5 rounded-full font-semibold flex items-center gap-1 ${status.classes}`;
+        indicator.className = `hidden sm:inline-flex text-[10px] px-2 py-0.5 rounded-full font-semibold items-center gap-1 shrink-0 ${status.classes}`;
         indicator.innerHTML = `<span class="w-1.5 h-1.5 rounded-full ${status.dot}"></span>${status.text}`;
       }
       if (detail) detail.textContent = status.detail;
@@ -500,17 +613,17 @@
 
       openCustomModal(`
         <div class="text-center">
-          <div class="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center mx-auto mb-3 text-xl">
+          <div class="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 text-xl" style="background: #e7f2eb; color: #1b5e45">
             <i class="fa-solid fa-user-shield"></i>
           </div>
-          <h3 class="text-lg font-bold text-slate-800 dark:text-white">Login do Administrador</h3>
-          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-4">Use a conta criada em <strong>Authentication &gt; Users</strong>.</p>
-          <input type="email" id="admin-email-input" autocomplete="username" placeholder="E-mail do administrador" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm mb-2 focus:ring-2 focus:ring-blue-500" />
-          <input type="password" id="admin-pass-input" autocomplete="current-password" placeholder="Senha" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm mb-2 focus:ring-2 focus:ring-blue-500" />
-          <p id="admin-login-error" class="hidden text-xs text-rose-600 dark:text-rose-400 mb-2"></p>
+          <h3 class="text-lg font-extrabold">Login da coordenação</h3>
+          <p class="text-xs mt-1 mb-4" style="color: var(--muted)">Entre com a conta da coordenação.</p>
+          <input type="email" id="admin-email-input" autocomplete="username" placeholder="E-mail do administrador" class="school-field px-3 py-2 mb-2" />
+          <input type="password" id="admin-pass-input" autocomplete="current-password" placeholder="Senha" class="school-field px-3 py-2 mb-2" />
+          <p id="admin-login-error" class="hidden text-xs text-rose-600 mb-2"></p>
           <div class="flex justify-center gap-3 mt-2">
-            <button onclick="closeCustomModal()" class="px-4 py-2 rounded-xl text-xs font-semibold border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">Cancelar</button>
-            <button onclick="verifyAdminLogin()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 shadow-md">Entrar</button>
+            <button onclick="closeCustomModal()" class="px-4 py-2 rounded-xl text-xs font-extrabold border" style="border-color: var(--line); color: var(--ink)">Cancelar</button>
+            <button onclick="verifyAdminLogin()" class="school-btn px-4 py-2 rounded-xl text-xs font-extrabold shadow-md">Entrar</button>
           </div>
         </div>
       `);
@@ -562,7 +675,7 @@
       }
       isAdmin = false;
       updateAdminUI();
-      showToast('Modo Administrador encerrado.', 'info');
+      showToast('Você saiu da coordenação.', 'info');
       // O onAuthStateChanged detecta a sessão nula e entra como visitante anônimo
     }
 
@@ -576,13 +689,13 @@
         panel.classList.add('flex');
         badge.classList.remove('hidden');
         badge.classList.add('flex');
-        btnText.textContent = 'Sair do Modo Admin';
+        btnText.textContent = 'Sair da coordenação';
       } else {
         panel.classList.add('hidden');
         panel.classList.remove('flex');
         badge.classList.add('hidden');
         badge.classList.remove('flex');
-        btnText.textContent = 'Entrar como Admin';
+        btnText.textContent = 'Entrar como administrador';
       }
       renderCards();
     }
@@ -632,10 +745,10 @@
 
         document.getElementById('create-card-form').reset();
         selectColor('blue');
-        showToast('Card publicado para todos os usuários!', 'success');
+        showToast('Aviso publicado para toda a escola!', 'success');
       } catch (err) {
         console.error("Erro ao salvar card:", err);
-        showToast('Erro ao publicar o card. Verifique sua permissão.', 'danger');
+        showToast('Não foi possível publicar o aviso. Verifique sua permissão.', 'danger');
       }
     };
 
@@ -669,10 +782,10 @@
           <div class="w-12 h-12 rounded-full bg-rose-100 dark:bg-rose-900/50 text-rose-600 dark:text-rose-400 flex items-center justify-center mx-auto mb-3 text-xl">
             <i class="fa-solid fa-trash-can"></i>
           </div>
-          <h3 class="text-lg font-bold text-slate-800 dark:text-white">Excluir este Card?</h3>
-          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-4">Ele será removido em tempo real para todos os leitores.</p>
+          <h3 class="text-lg font-extrabold">Excluir este aviso?</h3>
+          <p class="text-sm mt-1 mb-4" style="color: var(--muted)">Ele some do mural para toda a escola.</p>
           <div class="flex justify-center gap-3">
-            <button onclick="closeCustomModal()" class="px-4 py-2 rounded-xl text-xs font-semibold border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">Cancelar</button>
+            <button onclick="closeCustomModal()" class="px-4 py-2 rounded-xl text-xs font-extrabold border" style="border-color: var(--line); color: var(--ink)">Cancelar</button>
             <button onclick="confirmDeleteCard('${id}')" class="px-4 py-2 rounded-xl text-xs font-semibold bg-rose-600 text-white hover:bg-rose-700 shadow-md">Sim, Excluir</button>
           </div>
         </div>
@@ -689,10 +802,10 @@
           renderCards();
         }
         closeCustomModal();
-        showToast('Card excluído com sucesso!', 'info');
+        showToast('Aviso retirado do mural.', 'info');
       } catch (err) {
         console.error(err);
-        showToast('Erro ao excluir card.', 'danger');
+        showToast('Não foi possível excluir o aviso.', 'danger');
       }
     };
 
@@ -708,7 +821,7 @@
           localStorage.setItem('mural_interativo_backup', JSON.stringify(globalCards));
           renderCards();
         }
-        showToast(card.pinned ? 'Card fixado no topo!' : 'Card desfixado.', 'info');
+        showToast(card.pinned ? 'Aviso fixado no topo!' : 'Aviso solto do topo.', 'info');
       } catch (err) {
         console.error(err);
       }
@@ -720,31 +833,31 @@
 
       openCustomModal(`
         <div>
-          <h3 class="text-base font-bold text-slate-800 dark:text-white mb-3 flex items-center gap-2">
-            <i class="fa-solid fa-pen-to-square text-blue-500"></i> Editar Card Global
+          <h3 class="text-base font-extrabold mb-3 flex items-center gap-2">
+            <i class="fa-solid fa-pen-to-square" style="color: var(--school)"></i> Editar aviso
           </h3>
           <form onsubmit="saveEditCard(event, '${card.id}')" class="flex flex-col gap-3">
             <div>
-              <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Título</label>
-              <input type="text" id="edit-title" value="${escapeHtml(card.title)}" required class="w-full px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-xs focus:ring-2 focus:ring-blue-500" />
+              <label class="school-label block mb-1">Título</label>
+              <input type="text" id="edit-title" value="${escapeHtml(card.title)}" required class="school-field px-3 py-1.5" />
             </div>
             <div class="grid grid-cols-2 gap-2">
               <div>
-                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Categoria</label>
-                <input type="text" id="edit-category" value="${escapeHtml(card.category)}" required class="w-full px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-xs focus:ring-2 focus:ring-blue-500" />
+                <label class="school-label block mb-1">Categoria</label>
+                <input type="text" id="edit-category" value="${escapeHtml(card.category)}" required class="school-field px-3 py-1.5" />
               </div>
               <div>
-                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Autor</label>
-                <input type="text" id="edit-author" value="${escapeHtml(card.author)}" class="w-full px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-xs focus:ring-2 focus:ring-blue-500" />
+                <label class="school-label block mb-1">Quem publica</label>
+                <input type="text" id="edit-author" value="${escapeHtml(card.author)}" class="school-field px-3 py-1.5" />
               </div>
             </div>
             <div>
-              <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Conteúdo</label>
-              <textarea id="edit-content" required rows="3" class="w-full px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-xs focus:ring-2 focus:ring-blue-500 custom-scrollbar">${escapeHtml(card.content)}</textarea>
+              <label class="school-label block mb-1">Texto do aviso</label>
+              <textarea id="edit-content" required rows="3" class="school-field px-3 py-1.5 custom-scrollbar">${escapeHtml(card.content)}</textarea>
             </div>
             <div class="flex justify-end gap-2 mt-2">
-              <button type="button" onclick="closeCustomModal()" class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">Cancelar</button>
-              <button type="submit" class="px-4 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700">Salvar Alterações</button>
+              <button type="button" onclick="closeCustomModal()" class="px-3 py-1.5 rounded-lg text-xs font-extrabold border" style="border-color: var(--line)">Cancelar</button>
+              <button type="submit" class="school-btn px-4 py-1.5 rounded-lg text-xs font-extrabold">Salvar alterações</button>
             </div>
           </form>
         </div>
@@ -770,7 +883,7 @@
           }
         }
         closeCustomModal();
-        showToast('Card atualizado para todos!', 'success');
+        showToast('Aviso atualizado para toda a escola!', 'success');
       } catch (err) {
         console.error(err);
       }
@@ -798,13 +911,9 @@
 
       container.innerHTML = categories.map(cat => {
         const isSelected = selectedCategoryFilter === cat;
-        const label = cat === 'ALL' ? 'Todas As Categorias' : cat;
+        const label = cat === 'ALL' ? 'Todos' : cat;
         return `
-          <button onclick="setCategoryFilter('${cat}')" class="px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition ${
-            isSelected 
-              ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20' 
-              : 'bg-slate-100 dark:bg-slate-700/60 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
-          }">
+          <button onclick="setCategoryFilter('${cat}')" class="chip ${isSelected ? 'chip-active' : ''}">
             ${escapeHtml(label)}
           </button>
         `;
@@ -859,11 +968,11 @@
       emptyState.classList.remove('flex');
 
       const colorMap = {
-        blue: { border: 'border-blue-500', bgBadge: 'bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300' },
-        emerald: { border: 'border-emerald-500', bgBadge: 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300' },
-        amber: { border: 'border-amber-500', bgBadge: 'bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300' },
-        rose: { border: 'border-rose-500', bgBadge: 'bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300' },
-        purple: { border: 'border-purple-500', bgBadge: 'bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300' }
+        blue: { stripe: 'bg-blue-500', badge: 'bg-blue-100 text-blue-800' },
+        emerald: { stripe: 'bg-emerald-500', badge: 'bg-emerald-100 text-emerald-800' },
+        amber: { stripe: 'bg-amber-400', badge: 'bg-amber-100 text-amber-900' },
+        rose: { stripe: 'bg-rose-500', badge: 'bg-rose-100 text-rose-800' },
+        purple: { stripe: 'bg-purple-500', badge: 'bg-purple-100 text-purple-800' }
       };
 
       grid.innerHTML = filtered.map(card => {
@@ -872,56 +981,58 @@
         const likesCount = card.likes || 0;
 
         return `
-          <div class="card-transition group relative bg-white dark:bg-slate-800 rounded-2xl p-5 border-l-4 ${style.border} border-t border-r border-b border-slate-200 dark:border-slate-700/80 shadow-sm hover:shadow-md flex flex-col justify-between">
-            
+          <div class="notice-card card-transition group">
+            <div class="notice-stripe ${style.stripe}"></div>
+            ${card.pinned ? '<span class="notice-pin" title="Fixado"></span>' : ''}
+
             <div>
-              <div class="flex items-center justify-between gap-2 mb-3">
-                <span class="px-2.5 py-1 rounded-lg text-xs font-bold ${style.bgBadge}">
+              <div class="flex items-center justify-between gap-2 mb-3 mt-1">
+                <span class="px-2.5 py-1 rounded-lg text-xs font-extrabold ${style.badge}">
                   ${escapeHtml(card.category)}
                 </span>
 
                 <div class="flex items-center gap-1.5">
                   ${card.pinned ? `
-                    <span class="text-amber-500 text-xs font-semibold flex items-center gap-1 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded-md border border-amber-200 dark:border-amber-800">
+                    <span class="text-amber-700 text-xs font-extrabold flex items-center gap-1 bg-amber-100 px-2 py-0.5 rounded-md">
                       <i class="fa-solid fa-thumbtack"></i> Fixado
                     </span>
                   ` : ''}
 
                   ${isAdmin ? `
-                    <button onclick="togglePinCard('${card.id}')" title="${card.pinned ? 'Desfixar' : 'Fixar'}" class="w-7 h-7 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 hover:text-amber-500 transition flex items-center justify-center">
+                    <button onclick="togglePinCard('${card.id}')" title="${card.pinned ? 'Desfixar' : 'Fixar'}" class="w-7 h-7 rounded-lg hover:bg-amber-50 text-amber-700 transition flex items-center justify-center">
                       <i class="fa-solid fa-thumbtack text-xs"></i>
                     </button>
-                    <button onclick="editCard('${card.id}')" title="Editar" class="w-7 h-7 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 hover:text-blue-500 transition flex items-center justify-center">
+                    <button onclick="editCard('${card.id}')" title="Editar" class="w-7 h-7 rounded-lg hover:bg-emerald-50 transition flex items-center justify-center" style="color: var(--school)">
                       <i class="fa-solid fa-pen text-xs"></i>
                     </button>
-                    <button onclick="deleteCard('${card.id}')" title="Excluir" class="w-7 h-7 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/50 text-slate-400 hover:text-rose-500 transition flex items-center justify-center">
+                    <button onclick="deleteCard('${card.id}')" title="Excluir" class="w-7 h-7 rounded-lg hover:bg-rose-50 text-rose-500 transition flex items-center justify-center">
                       <i class="fa-solid fa-trash-can text-xs"></i>
                     </button>
                   ` : ''}
                 </div>
               </div>
 
-              <h3 class="text-base font-bold text-slate-900 dark:text-white leading-snug mb-2">
+              <h3 class="text-lg font-extrabold leading-snug mb-2">
                 ${escapeHtml(card.title)}
               </h3>
 
-              <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-line mb-4">
+              <p class="text-sm leading-relaxed whitespace-pre-line mb-4" style="color: var(--muted)">
                 ${escapeHtml(card.content)}
               </p>
             </div>
 
-            <div class="pt-3 border-t border-slate-100 dark:border-slate-700/50 flex items-center justify-between text-[11px]">
-              <span class="flex items-center gap-1.5 font-medium text-slate-600 dark:text-slate-400">
-                <i class="fa-solid fa-user-circle text-xs text-slate-400"></i>
+            <div class="pt-3 flex items-center justify-between text-xs" style="border-top: 1px dashed var(--line)">
+              <span class="flex items-center gap-1.5 font-bold" style="color: var(--ink)">
+                <i class="fa-solid fa-user-circle text-sm" style="color: var(--school)"></i>
                 ${escapeHtml(card.author)}
               </span>
 
               <div class="flex items-center gap-3">
-                <button onclick="toggleLikeCard('${card.id}')" class="flex items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-rose-500 dark:hover:text-rose-400 transition bg-slate-50 dark:bg-slate-700/50 px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-600">
+                <button onclick="toggleLikeCard('${card.id}')" class="flex items-center gap-1 px-2 py-1 rounded-lg border transition" style="border-color: var(--line); color: var(--muted)">
                   <i class="fa-solid fa-heart ${likesCount > 0 ? 'text-rose-500' : ''}"></i>
-                  <span class="font-bold text-xs">${likesCount}</span>
+                  <span class="font-extrabold text-xs">${likesCount}</span>
                 </button>
-                <span class="text-slate-400">${formattedDate}</span>
+                <span style="color: var(--muted)">${formattedDate}</span>
               </div>
             </div>
 
@@ -1014,7 +1125,7 @@
         success: 'bg-emerald-600 text-white',
         danger: 'bg-rose-600 text-white',
         warning: 'bg-amber-500 text-white',
-        info: 'bg-slate-800 dark:bg-slate-100 text-white dark:text-slate-900'
+        info: 'bg-[#1b5e45] text-white'
       };
 
       const icons = {
