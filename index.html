@@ -510,30 +510,19 @@
         </div>
       </div>
 
+      <button type="button" id="open-recado-form" onclick="openComposer('recados')" class="school-btn self-start px-4 py-2 rounded-xl text-sm font-extrabold">
+        Criar Recado
+      </button>
+
       <!-- FORMULÁRIO DE CRIAÇÃO DE CARD -->
-      <form id="create-card-form" onsubmit="handleCreateCard(event)" class="paper-surface mt-2 p-4 sm:p-5 rounded-xl flex flex-col gap-4">
+      <form id="create-card-form" onsubmit="handleCreateCard(event)" class="paper-surface mt-2 p-4 sm:p-5 rounded-xl hidden flex-col gap-4">
         <h3 class="text-sm font-extrabold flex items-center gap-2">
           <i class="fa-solid fa-plus-circle" style="color: var(--school)"></i> Novo recado interno
         </h3>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <!-- Título -->
-          <div class="sm:col-span-2 lg:col-span-1">
-            <label class="school-label block mb-1">Título do aviso *</label>
-            <input type="text" id="card-title" required placeholder="Ex: Reunião pedagógica" class="school-field px-3 py-2" />
-          </div>
-
-          <!-- Categoria -->
-          <div>
-            <label class="school-label block mb-1">Categoria *</label>
-            <input type="text" id="card-category" required placeholder="Ex: Avisos, Eventos, Tarefas" class="school-field px-3 py-2" />
-          </div>
-
-          <!-- Autor -->
-          <div>
-            <label class="school-label block mb-1">Quem publica</label>
-            <input type="text" id="card-author" placeholder="Ex: Coordenação, Professor, Direção" class="school-field px-3 py-2" />
-          </div>
+        <div>
+          <label class="school-label block mb-1">Título do aviso *</label>
+          <input type="text" id="card-title" required placeholder="Ex: Reunião pedagógica" class="school-field px-3 py-2" />
         </div>
 
         <!-- Conteúdo -->
@@ -576,6 +565,7 @@
               <i class="fa-solid fa-thumbtack text-amber-500"></i> Fixar no topo
             </label>
 
+            <button type="button" onclick="closeComposer('recados')" class="px-4 py-2.5 rounded-xl text-sm font-extrabold border" style="border-color: var(--line)">Cancelar</button>
             <button type="submit" class="school-btn px-5 py-2.5 rounded-xl font-extrabold text-sm shadow-md flex items-center gap-2 transition active:scale-95">
               <i class="fa-solid fa-paper-plane"></i> Publicar recado
             </button>
@@ -585,7 +575,11 @@
     </div>
 
     <!-- CABEÇALHO DO MURAL COM CONTADOR -->
-    <form id="publisher-panel" onsubmit="handleStudentPublish(event)" class="school-panel hidden flex-col gap-4 p-4 sm:p-6">
+    <div id="publisher-panel" class="school-panel hidden flex-col gap-4 p-4 sm:p-6">
+      <button type="button" id="open-public-form" onclick="openComposer('public')" class="school-btn self-start px-4 py-2 rounded-xl text-sm font-extrabold">
+        Criar Atividade
+      </button>
+      <form id="student-publish-form" onsubmit="handleStudentPublish(event)" class="hidden flex-col gap-4">
       <div>
         <h2 id="publisher-title" class="text-base font-extrabold flex items-center gap-2">
           <i class="fa-solid fa-pen-nib" style="color: var(--school)"></i>
@@ -593,19 +587,9 @@
         </h2>
         <p id="publisher-hint" class="text-xs mt-1" style="color: var(--muted)">A publicação aparece nesta aba para toda a escola.</p>
       </div>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label class="school-label block mb-1">Título *</label>
-          <input type="text" id="student-title" required placeholder="Ex: Meta de leitura da turma" class="school-field px-3 py-2" />
-        </div>
-        <div>
-          <label class="school-label block mb-1">Categoria *</label>
-          <input type="text" id="student-category" required placeholder="Ex: Evento, Concluído" class="school-field px-3 py-2" />
-        </div>
-      </div>
       <div>
-        <label class="school-label block mb-1">Quem publica</label>
-        <input type="text" id="student-author" placeholder="Seu nome" class="school-field px-3 py-2" />
+        <label class="school-label block mb-1">Título *</label>
+        <input type="text" id="student-title" required placeholder="Ex: Meta de leitura da turma" class="school-field px-3 py-2" />
       </div>
       <div>
         <label class="school-label block mb-1">Texto *</label>
@@ -625,12 +609,14 @@
           <input type="text" id="student-link-label" placeholder="Ex: Ver a meta" class="school-field px-3 py-2" />
         </div>
       </div>
-      <div class="flex justify-end">
+      <div class="flex justify-end gap-2">
+        <button type="button" onclick="closeComposer('public')" class="px-4 py-2.5 rounded-xl text-sm font-extrabold border" style="border-color: var(--line)">Cancelar</button>
         <button type="submit" class="school-btn px-5 py-2.5 rounded-xl font-extrabold text-sm shadow-md flex items-center gap-2 transition active:scale-95">
           <i class="fa-solid fa-paper-plane"></i> Publicar
         </button>
       </div>
-    </form>
+      </form>
+    </div>
 
     <div id="avisos" class="text-center">
       <h1 class="hero-line" id="board-hero">
@@ -722,7 +708,7 @@
 
     // Versão do app: deve ser igual ao conteúdo de version.txt.
     // A cada publicação, atualize os dois para os clientes se auto-atualizarem.
-    const APP_VERSION = '2026-11-17-1';
+    const APP_VERSION = '2026-11-17-2';
 
     // Coleção pública do Firestore
     const getCardsCollection = () => collection(db, 'artifacts', appId, 'public', 'data', 'mural_cards');
@@ -869,6 +855,46 @@
 
     function sessionEmail() {
       return (currentUser && currentUser.email ? currentUser.email : '').toLowerCase();
+    }
+
+    function publisherName() {
+      const named = (currentUser && currentUser.displayName ? currentUser.displayName : '').trim();
+      if (named) return named;
+      return sessionEmail() || 'Escola';
+    }
+
+    function composerLabel(kind) {
+      if (kind === 'recados') return 'Criar Recado';
+      return selectedBoard === 'conquistas' ? 'Criar Conquista' : 'Criar Atividade';
+    }
+
+    function composerParts(kind) {
+      if (kind === 'recados') return { formId: 'create-card-form', buttonId: 'open-recado-form' };
+      return { formId: 'student-publish-form', buttonId: 'open-public-form' };
+    }
+
+    window.openComposer = function(kind) {
+      const { formId, buttonId } = composerParts(kind);
+      const form = document.getElementById(formId);
+      const button = document.getElementById(buttonId);
+      if (!form) return;
+      const willOpen = form.classList.contains('hidden');
+      setShown(form, willOpen, 'flex');
+      if (button) button.textContent = willOpen ? 'Fechar' : composerLabel(kind);
+      if (willOpen) form.querySelector('input, textarea')?.focus();
+    };
+
+    window.closeComposer = function(kind) {
+      const { formId, buttonId } = composerParts(kind);
+      const form = document.getElementById(formId);
+      const button = document.getElementById(buttonId);
+      setShown(form, false, 'flex');
+      if (button) button.textContent = composerLabel(kind);
+    };
+
+    function closeComposers() {
+      closeComposer('recados');
+      closeComposer('public');
     }
 
     function canManageCard(card) {
@@ -1139,6 +1165,11 @@
           ? 'A conquista aparece nesta aba para toda a escola.'
           : 'A atividade aparece nesta aba para toda a escola.';
       }
+      const publicButton = document.getElementById('open-public-form');
+      const publicForm = document.getElementById('student-publish-form');
+      if (publicButton && publicForm && publicForm.classList.contains('hidden')) {
+        publicButton.textContent = composerLabel('public');
+      }
 
       ['recados', 'atividades', 'conquistas'].forEach((board) => {
         const tab = document.getElementById(`tab-${board}`);
@@ -1156,6 +1187,7 @@
       if (board === 'recados' && !canSeeRecados()) return;
       if (!['recados', 'atividades', 'conquistas'].includes(board)) return;
       selectedBoard = board;
+      closeComposers();
       const search = document.getElementById('search-input');
       if (search) search.value = '';
       updateAccessUI();
@@ -1216,8 +1248,7 @@
       e.preventDefault();
       
       const title = document.getElementById('card-title').value.trim();
-      const category = document.getElementById('card-category').value.trim();
-      const author = document.getElementById('card-author').value.trim() || 'Administrador';
+      const author = publisherName();
       const content = document.getElementById('card-content').value.trim();
       const imageUrl = readOptionalUrl('card-image', 'A imagem');
       const linkUrl = readOptionalUrl('card-link', 'O link');
@@ -1225,7 +1256,7 @@
       const color = document.getElementById('selected-color').value || 'blue';
       const pinned = document.getElementById('card-pinned').checked;
 
-      if (!title || !category || !content) {
+      if (!title || !content) {
         showToast('Preencha os campos obrigatórios!', 'warning');
         return;
       }
@@ -1233,7 +1264,7 @@
 
       const newCard = {
         title,
-        category,
+        category: '',
         author,
         content,
         imageUrl,
@@ -1265,6 +1296,7 @@
 
         document.getElementById('create-card-form').reset();
         selectColor('blue');
+        closeComposer('recados');
         showToast('Recado interno publicado.', 'success');
       } catch (err) {
         console.error("Erro ao salvar card:", err);
@@ -1282,13 +1314,12 @@
       }
 
       const title = document.getElementById('student-title').value.trim();
-      const category = document.getElementById('student-category').value.trim();
-      const author = document.getElementById('student-author').value.trim() || 'Aluno';
+      const author = publisherName();
       const content = document.getElementById('student-content').value.trim();
       const imageUrl = readOptionalUrl('student-image', 'A imagem');
       const linkUrl = readOptionalUrl('student-link', 'O link');
       const linkLabel = document.getElementById('student-link-label').value.trim();
-      if (!title || !category || !content) {
+      if (!title || !content) {
         showToast('Preencha os campos obrigatórios!', 'warning');
         return;
       }
@@ -1296,7 +1327,7 @@
 
       const newCard = {
         title,
-        category,
+        category: '',
         author,
         content,
         imageUrl,
@@ -1320,7 +1351,8 @@
           localStorage.setItem('mural_interativo_backup', JSON.stringify(globalCards));
           renderCards();
         }
-        document.getElementById('publisher-panel').reset();
+        document.getElementById('student-publish-form').reset();
+        closeComposer('public');
         showToast(board === 'conquistas' ? 'Conquista publicada.' : 'Atividade publicada.', 'success');
       } catch (err) {
         console.error('Erro ao publicar:', err);
@@ -1421,16 +1453,6 @@
               <label class="school-label block mb-1">Título</label>
               <input type="text" id="edit-title" value="${escapeHtml(card.title)}" required class="school-field px-3 py-1.5" />
             </div>
-            <div class="grid grid-cols-2 gap-2">
-              <div>
-                <label class="school-label block mb-1">Categoria</label>
-                <input type="text" id="edit-category" value="${escapeHtml(card.category)}" required class="school-field px-3 py-1.5" />
-              </div>
-              <div>
-                <label class="school-label block mb-1">Quem publica</label>
-                <input type="text" id="edit-author" value="${escapeHtml(card.author)}" class="school-field px-3 py-1.5" />
-              </div>
-            </div>
             <div>
               <label class="school-label block mb-1">Texto do aviso</label>
               <textarea id="edit-content" required rows="3" class="school-field px-3 py-1.5 custom-scrollbar">${escapeHtml(card.content)}</textarea>
@@ -1463,8 +1485,6 @@
       const card = globalCards.find(c => c.id === id);
       if (!card || !canManageCard(card)) return;
       const title = document.getElementById('edit-title').value.trim();
-      const category = document.getElementById('edit-category').value.trim();
-      const author = document.getElementById('edit-author').value.trim() || 'Administrador';
       const content = document.getElementById('edit-content').value.trim();
       const imageUrl = readOptionalUrl('edit-image', 'A imagem');
       const linkUrl = readOptionalUrl('edit-link', 'O link');
@@ -1473,13 +1493,11 @@
 
       try {
         if (FIREBASE_CONFIGURADO) {
-          await updateDoc(getCardDoc(id), { title, category, author, content, imageUrl, linkUrl, linkLabel });
+          await updateDoc(getCardDoc(id), { title, content, imageUrl, linkUrl, linkLabel });
         } else {
           const current = globalCards.find(c => c.id === id);
           if (current) {
             current.title = title;
-            current.category = category;
-            current.author = author;
             current.content = content;
             current.imageUrl = imageUrl;
             current.linkUrl = linkUrl;
