@@ -340,6 +340,12 @@
     .school-btn:hover {
       background: var(--school-deep);
     }
+    .composer-open {
+      width: min(100%, 24rem);
+      padding: 0.35rem 2.25rem;
+      border-radius: 999px;
+      line-height: 1.2;
+    }
     .school-label {
       color: var(--muted);
       font-size: 0.75rem;
@@ -566,11 +572,11 @@
     </div>
 
     <!-- CABEÇALHO DO MURAL COM CONTADOR -->
-    <div id="publisher-panel" class="school-panel hidden flex-col gap-4 p-4 sm:p-6">
-      <button type="button" id="open-public-form" onclick="openComposer('public')" class="school-btn self-start px-4 py-2 rounded-xl text-sm font-extrabold">
+    <div id="publisher-panel" class="hidden flex-col items-center gap-3">
+      <button type="button" id="open-public-form" onclick="openComposer('public')" class="composer-open school-btn text-sm font-extrabold">
         Criar Atividade
       </button>
-      <form id="student-publish-form" onsubmit="handleStudentPublish(event)" class="hidden flex-col gap-4">
+      <form id="student-publish-form" onsubmit="handleStudentPublish(event)" class="school-panel hidden w-full flex-col gap-4 p-4 sm:p-6">
       <div>
         <h2 id="publisher-title" class="text-base font-extrabold flex items-center gap-2">
           <i class="fa-solid fa-pen-nib" style="color: var(--school)"></i>
@@ -699,7 +705,7 @@
 
     // Versão do app: deve ser igual ao conteúdo de version.txt.
     // A cada publicação, atualize os dois para os clientes se auto-atualizarem.
-    const APP_VERSION = '2026-11-17-3';
+    const APP_VERSION = '2026-11-17-4';
 
     // Coleção pública do Firestore
     const getCardsCollection = () => collection(db, 'artifacts', appId, 'public', 'data', 'mural_cards');
