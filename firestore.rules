@@ -6,33 +6,113 @@ rules_version = '2';
 //  Como publicar:
 //  Console Firebase > Firestore Database > Regras >
 //  cole este conteúdo > Publicar.
+//  O arquivo no Git não aplica a trava sozinho.
 //
-//  Administrador = conta helton020@gmail.com (Authentication > Users).
-//  Visitantes anônimos podem apenas reagir (somar 1 like).
+//  Proprietário = helton020@gmail.com
+//  Equipe = coordenação, direção, vice-direção e RH (STAFF_EMAILS em index.html)
+//  Alunos = até seis publicadores (STUDENT_EMAILS em index.html)
+//  A senha fica no Firebase Authentication. Não grave senha aqui.
+//
+//  Recados (board == 'recados') só a equipe e o proprietário leem.
+//  Atividades e conquistas são públicas.
+//  Itens antigos, sem o campo board, contam como atividades.
 // ============================================================
 
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    function isAdmin() {
+    function signedIn() {
+      return request.auth != null && request.auth.token.email != null;
+    }
+
+    function email() {
+      return request.auth.token.email.lower();
+    }
+
+    function isOwner() {
+      return signedIn() && email() == 'helton020@gmail.com';
+    }
+
+    // Mantenha esta lista igual a STAFF_EMAILS em index.html.
+    function isStaff() {
+      return signedIn() && email() in [
+      ];
+    }
+
+    // Mantenha esta lista igual a STUDENT_EMAILS em index.html.
+    function isStudent() {
+      return signedIn() && email() in [
+      ];
+    }
+
+    function boardOf(data) {
+      return data.get('board', 'atividades');
+    }
+
+    function isPublicBoard(data) {
+      return boardOf(data) == 'atividades' || boardOf(data) == 'conquistas';
+    }
+
+    function isLikeOnly() {
       return request.auth != null
-        && request.auth.token.email != null
-        && request.auth.token.email.lower() == 'helton020@gmail.com';
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes'])
+        && request.resource.data.likes == resource.data.likes + 1
+        && (isPublicBoard(resource.data) || isStaff() || isOwner());
     }
 
-    // Cartões do mural: leitura pública, escrita apenas do admin.
-    // Reações (likes) podem ser enviadas por qualquer visitante autenticado,
-    // desde que alterem somente o campo "likes" e somem exatamente 1.
+    function keepsIdentity() {
+      return request.resource.data.authorEmail == resource.data.authorEmail
+        && request.resource.data.get('board', 'atividades') == boardOf(resource.data)
+        && request.resource.data.likes == resource.data.likes;
+    }
+
     match /artifacts/{appId}/public/data/mural_cards/{cardId} {
-      allow read: if true;
-      allow create, delete: if isAdmin();
-      allow update: if isAdmin()
-        || (request.auth != null
-            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes'])
-            && request.resource.data.likes == resource.data.likes + 1);
+      allow read: if isPublicBoard(resource.data) || isStaff() || isOwner();
+
+      allow create: if (
+          isOwner()
+          && request.resource.data.board in ['recados', 'atividades', 'conquistas']
+          && request.resource.data.likes >= 0
+        ) || (
+          isStaff()
+          && request.resource.data.board == 'recados'
+          && request.resource.data.authorEmail == email()
+          && request.resource.data.likes == 0
+        ) || (
+          isStudent()
+          && request.resource.data.board in ['atividades', 'conquistas']
+          && request.resource.data.authorEmail == email()
+          && request.resource.data.likes == 0
+          && request.resource.data.get('pinned', false) == false
+        );
+
+      allow update: if isLikeOnly()
+        || isOwner()
+        || (
+          signedIn()
+          && resource.data.authorEmail == email()
+          && keepsIdentity()
+          && (
+            (isStaff() && boardOf(resource.data) == 'recados')
+            || (
+              isStudent()
+              && isPublicBoard(resource.data)
+              && request.resource.data.get('pinned', false) == resource.data.get('pinned', false)
+            )
+          )
+        );
+
+      allow delete: if isOwner()
+        || (
+          signedIn()
+          && resource.data.authorEmail == email()
+          && (
+            (isStaff() && boardOf(resource.data) == 'recados')
+            || (isStudent() && isPublicBoard(resource.data))
+          )
+        );
     }
 
-    // Nega qualquer outro acesso por padrão.
     match /{document=**} {
       allow read, write: if false;
     }

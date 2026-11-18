@@ -16,10 +16,10 @@
   <!-- Font Nunito -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --paper: #f4efe4;
+      --paper: #ffffff;
       --ink: #2c2416;
       --muted: #6d6254;
       --card: #fffdf8;
@@ -40,29 +40,267 @@
     }
     body {
       font-family: 'Nunito', sans-serif;
-      background-color: var(--paper);
-      background-image: radial-gradient(var(--dot) 1.1px, transparent 1.1px);
-      background-size: 18px 18px;
+      background-color: #ffffff;
+      background-image: linear-gradient(to bottom, #cfe6dc 0px, #d9ece3 130px, #e7f4ee 380px, #f7fbf9 620px, #ffffff 860px);
+      background-repeat: no-repeat;
       color: var(--ink);
+    }
+    .dark body {
+      background-color: var(--paper);
+      background-image: radial-gradient(var(--dot) 1.1px, transparent 1.1px), linear-gradient(to bottom, #1a3d32 0px, #163028 200px, #17211c 640px);
+      background-size: 18px 18px, auto;
+      background-repeat: repeat, no-repeat;
+    }
+    footer.school-footer {
+      background: linear-gradient(to bottom, #e7f4ee 0%, #d9ece3 48%, #cfe6dc 100%);
+      color: #0e3b2b;
+    }
+    .dark footer.school-footer {
+      background: linear-gradient(to bottom, #17211c 0%, #163028 48%, #1a3d32 100%);
+      color: #f7f3ea;
     }
     .card-transition {
       transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .card-transition:hover {
-      transform: translateY(-2px);
+      transform: translateY(-8px);
     }
-    .school-header {
-      background: #1b5e45;
-      color: #f7f3ea;
-      border-bottom: 4px solid #e8a317;
+    #topo {
+      background: linear-gradient(to bottom, #cfe6dc 0%, #d9ece3 100%);
     }
-    .school-header-btn {
-      border: 1px solid rgba(247, 243, 234, 0.35);
-      color: #f7f3ea;
+    .top-ribbon {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem 1rem;
+      background: #cfe6dc;
+      color: #1b5e45;
+      padding: 0.55rem 1rem;
+    }
+    .ribbon-nav,
+    .ribbon-tools {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+    .ribbon-nav {
+      flex: 1;
+      min-width: 0;
+    }
+    .ribbon-tools {
+      flex-shrink: 0;
+    }
+    .ribbon-search {
+      flex: 1 1 8rem;
+      min-width: 6.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      height: 2rem;
+      padding: 0 0.75rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid rgba(27, 94, 69, 0.16);
+      color: #1b5e45;
+    }
+    .ribbon-search i {
+      font-size: 0.75rem;
+      opacity: 0.7;
+    }
+    .ribbon-search input {
+      width: 100%;
+      min-width: 0;
+      border: 0;
       background: transparent;
+      color: inherit;
+      font: inherit;
+      font-size: 0.78rem;
+      font-weight: 700;
+      outline: none;
     }
-    .school-header-btn:hover {
+    .ribbon-search input::placeholder {
+      color: rgba(27, 94, 69, 0.5);
+      font-weight: 600;
+    }
+    .dark .ribbon-search {
+      background: rgba(14, 32, 26, 0.4);
+      border-color: rgba(247, 243, 234, 0.22);
+      color: #f7f3ea;
+    }
+    .dark .ribbon-search input::placeholder {
+      color: rgba(247, 243, 234, 0.55);
+    }
+    .ribbon-filter,
+    .ribbon-link {
+      background: none;
+      border: none;
+      color: #0e3b2b;
+      font-size: 0.92rem;
+      font-weight: 800;
+      padding: 0;
+      white-space: nowrap;
+    }
+    .ribbon-filter:hover,
+    .ribbon-link:hover,
+    .ribbon-link.is-active,
+    .ribbon-filter.is-active {
+      color: #062218;
+    }
+    .ribbon-link.is-active {
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+    .ribbon-filter.is-active {
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+    .dark #topo {
+      background: linear-gradient(to bottom, #1a3d32 0%, #163028 100%);
+    }
+    .dark .top-ribbon,
+    .dark .ribbon-link {
+      color: #f7f3ea;
+    }
+    .dark .ribbon-filter:hover,
+    .dark .ribbon-link:hover,
+    .dark .ribbon-link.is-active,
+    .dark .ribbon-filter.is-active {
+      color: #fff;
+    }
+    .ribbon-icon {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 999px;
+      border: 1px solid rgba(27, 94, 69, 0.35);
+      color: #1b5e45;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      flex-shrink: 0;
+    }
+    .ribbon-icon:hover {
+      background: rgba(27, 94, 69, 0.08);
+    }
+    .dark .ribbon-icon {
+      border-color: rgba(247, 243, 234, 0.45);
+      color: #f7f3ea;
+    }
+    .dark .ribbon-icon:hover {
       background: rgba(255, 255, 255, 0.12);
+    }
+    .nav-bar {
+      background: transparent;
+      border-bottom: none;
+    }
+    .dark .nav-bar {
+      background: transparent;
+      border-bottom: none;
+    }
+    .brand-title {
+      font-family: 'Great Vibes', cursive;
+      font-size: clamp(2rem, 6vw, 3.2rem);
+      line-height: 1;
+      color: #1b5e45;
+      white-space: nowrap;
+    }
+    .dark .brand-title {
+      color: #d7b56a;
+    }
+    .nav-link {
+      letter-spacing: 0.16em;
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: #2c2416;
+      background: transparent;
+      padding: 0.35rem 0;
+    }
+    .nav-link:hover {
+      color: #1b5e45;
+    }
+    .dark .nav-link {
+      color: #f3ead8;
+    }
+    .dark .nav-link:hover {
+      color: #e8a317;
+    }
+    .nav-icon {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 999px;
+      border: 1px solid #e6e0d6;
+      color: #2c2416;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      flex-shrink: 0;
+    }
+    .nav-icon:hover {
+      background: #f6f3ee;
+    }
+    .dark .nav-icon {
+      border-color: #3d463c;
+      color: #f3ead8;
+    }
+    .dark .nav-icon:hover {
+      background: #24302a;
+    }
+    .site-menu {
+      display: none;
+      flex-direction: column;
+      background: #fff;
+      border-top: 1px solid #eeeae4;
+    }
+    .site-menu.open {
+      display: flex;
+    }
+    .dark .site-menu {
+      background: #17211c;
+      border-top-color: #2c3a32;
+    }
+    @media (min-width: 768px) {
+      .site-menu,
+      .site-menu.open { display: none; }
+    }
+    .hero-line {
+      text-align: center;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #3a332c;
+      line-height: 1;
+      margin: 0;
+    }
+    .dark .hero-line {
+      color: #f3ead8;
+    }
+    .script-word {
+      font-family: 'Great Vibes', cursive;
+      text-transform: none;
+      letter-spacing: 0;
+      font-size: 2.35rem;
+      font-weight: 400;
+      color: #1b5e45;
+      display: inline-block;
+      margin-left: 0.35rem;
+      line-height: 1;
+      vertical-align: middle;
+    }
+    .dark .script-word {
+      color: #d7b56a;
+    }
+    .gold-tag {
+      display: table;
+      margin: 1.15rem auto 0;
+      background: #c4a265;
+      color: #fff;
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 0.45rem 0.95rem;
     }
     .school-panel {
       background: #e7f2eb;
@@ -103,27 +341,62 @@
       font-size: 0.75rem;
       font-weight: 700;
     }
+    .cards-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: stretch;
+      gap: 2rem;
+    }
     .notice-card {
       position: relative;
       display: flex;
+      flex: 1 1 20rem;
       flex-direction: column;
       justify-content: space-between;
-      background: var(--card);
+      width: 100%;
+      max-width: 26rem;
+      background: linear-gradient(to bottom, #c9e3d6 0%, #eef6f2 46px, #ffffff 92px);
       color: var(--ink);
-      border: 1px solid var(--line);
-      border-radius: 2px 16px 16px 16px;
-      box-shadow: 0 10px 22px rgba(44, 36, 22, 0.08);
-      padding: 1.15rem 1.15rem 0.85rem;
+      border: none;
+      border-radius: 18px;
+      box-shadow: 18px 26px 34px rgba(44, 36, 22, 0.24), 8px 12px 16px rgba(44, 36, 22, 0.1);
+      padding: 1.75rem 1.5rem 1.35rem;
       overflow: hidden;
+      min-height: 240px;
     }
-    .notice-stripe {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 7px;
+    .dark .notice-card {
+      background: linear-gradient(to bottom, #24382f 0%, var(--card) 92px);
+      box-shadow: 18px 26px 36px rgba(0, 0, 0, 0.48), 8px 12px 16px rgba(0, 0, 0, 0.28);
     }
-    .notice-pin {
+    .notice-card:hover {
+      box-shadow: 22px 32px 42px rgba(44, 36, 22, 0.3), 10px 14px 18px rgba(44, 36, 22, 0.12);
+    }
+    .dark .notice-card:hover {
+      box-shadow: 22px 32px 44px rgba(0, 0, 0, 0.55), 10px 14px 18px rgba(0, 0, 0, 0.32);
+    }
+    .notice-image {
+      display: block;
+      width: 100%;
+      max-height: 11rem;
+      object-fit: cover;
+      border-radius: 12px;
+      margin-bottom: 1rem;
+      background: #eef6f2;
+    }
+    .notice-link {
+      color: var(--school);
+      font-weight: 800;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      word-break: break-word;
+    }
+    .notice-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      margin-top: 0.9rem;
+    }
       position: absolute;
       top: 1px;
       left: 50%;
@@ -153,6 +426,7 @@
     @media (max-width: 639px) {
       #admin-badge { display: none !important; }
     }
+    .custom-scrollbar::-webkit-scrollbar {
       width: 6px;
       height: 6px;
     }
@@ -178,42 +452,32 @@
   </div>
 
   <!-- NAV BAR -->
-  <header class="school-header sticky top-0 z-30">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between gap-3">
-      <!-- Logo e Título -->
-      <div class="flex items-center gap-3 min-w-0">
-        <img src="IMG-20261008-WA0002.jpeg" alt="EE Professora Jandyra Nery Gatti" class="h-14 w-14 shrink-0 rounded-xl bg-white object-contain shadow-md" />
-        <div class="min-w-0">
-          <h1 class="font-extrabold text-sm sm:text-lg leading-tight tracking-tight text-[#f7f3ea] flex items-center gap-2">
-            <span>Mural Dinâmico da Escola Jandyra</span>
-            <span id="sync-indicator" class="hidden sm:inline-flex text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 font-semibold items-center gap-1 shrink-0">
-              <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-              Conectando
-            </span>
-          </h1>
-          <p class="text-xs text-[#f7f3ea]/80 truncate">Avisos, eventos e recados da escola</p>
-        </div>
+  <div class="top-ribbon sticky top-0 z-30">
+    <nav class="ribbon-nav" id="board-nav">
+      <button type="button" id="tab-recados" onclick="setBoard('recados')" class="ribbon-link hidden">Recados</button>
+      <button type="button" id="tab-atividades" onclick="setBoard('atividades')" class="ribbon-link is-active" aria-current="page">Atividades</button>
+      <button type="button" id="tab-conquistas" onclick="setBoard('conquistas')" class="ribbon-link">Conquistas</button>
+      <label class="ribbon-search">
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        <input type="search" id="search-input" oninput="renderCards()" placeholder="Buscar no mural" aria-label="Buscar por título, texto ou quem publicou" />
+      </label>
+    </nav>
+    <div class="ribbon-tools">
+      <div id="admin-badge" class="hidden items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-900 border border-amber-200">
+        <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+        <span id="admin-badge-label">Proprietário</span>
       </div>
-
-      <!-- Ações Header -->
-      <div class="flex items-center gap-2 shrink-0">
-        <!-- Indicador de Status do Modo Admin -->
-        <div id="admin-badge" class="hidden items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-900 border border-amber-200">
-          <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-          Coordenação
-        </div>
-
-        <!-- Botão Toggle Admin -->
-        <button id="btn-toggle-admin" onclick="toggleAdminMode()" class="school-header-btn px-2.5 sm:px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 transition" title="Entrar como administrador">
-          <i class="fa-solid fa-user-shield"></i>
-          <span id="btn-admin-text" class="hidden sm:inline">Entrar como administrador</span>
-        </button>
-
-        <!-- Toggle Modo Escuro -->
-        <button onclick="toggleDarkMode()" class="school-header-btn w-10 h-10 rounded-xl flex items-center justify-center transition shrink-0" title="Alternar tema">
-          <i class="fa-solid fa-sun hidden dark:inline text-amber-300"></i>
-          <i class="fa-solid fa-moon inline dark:hidden"></i>
-        </button>
+      <button id="btn-toggle-admin" onclick="toggleAdminMode()" class="ribbon-icon" title="Entrar">
+        <i class="fa-solid fa-user-shield"></i>
+        <span id="btn-admin-text" class="sr-only">Entrar</span>
+      </button>
+    </div>
+  </div>
+  <header id="topo">
+    <div class="nav-bar">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-h-16 py-2 flex items-center justify-center gap-3">
+        <img src="coruja.png" alt="Coruja da Escola Jandyra" class="h-16 w-16 shrink-0 object-contain" />
+        <p class="brand-title">Mural Interativo do Jandyra</p>
       </div>
     </div>
   </header>
@@ -227,11 +491,11 @@
         <div>
           <h2 class="text-base font-extrabold flex items-center gap-2">
             <i class="fa-solid fa-chalkboard-user" style="color: var(--school)"></i>
-            Mesa da coordenação
+            Mesa da equipe
           </h2>
-          <p class="text-xs mt-1" style="color: var(--muted)">Publique avisos que toda a escola vê ao mesmo tempo.</p>
+          <p class="text-xs mt-1" style="color: var(--muted)">Recado interno. Só a equipe e o proprietário veem esta aba.</p>
         </div>
-        <div class="flex flex-wrap items-center gap-2">
+        <div id="owner-tools" class="hidden flex-wrap items-center gap-2">
           <button onclick="exportData()" class="paper-surface px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
             <i class="fa-solid fa-download"></i> Exportar JSON
           </button>
@@ -245,7 +509,7 @@
       <!-- FORMULÁRIO DE CRIAÇÃO DE CARD -->
       <form id="create-card-form" onsubmit="handleCreateCard(event)" class="paper-surface mt-2 p-4 sm:p-5 rounded-xl flex flex-col gap-4">
         <h3 class="text-sm font-extrabold flex items-center gap-2">
-          <i class="fa-solid fa-plus-circle" style="color: var(--school)"></i> Novo aviso
+          <i class="fa-solid fa-plus-circle" style="color: var(--school)"></i> Novo recado interno
         </h3>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -271,7 +535,21 @@
         <!-- Conteúdo -->
         <div>
           <label class="school-label block mb-1">Texto do aviso *</label>
-          <textarea id="card-content" required rows="3" placeholder="Escreva o recado para a escola..." class="school-field px-3 py-2 custom-scrollbar"></textarea>
+          <textarea id="card-content" required rows="3" placeholder="Escreva o recado para a escola. Um endereço http vira link." class="school-field px-3 py-2 custom-scrollbar"></textarea>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="school-label block mb-1">Imagem (endereço)</label>
+            <input type="url" id="card-image" placeholder="https://..." class="school-field px-3 py-2" />
+          </div>
+          <div>
+            <label class="school-label block mb-1">Link</label>
+            <input type="url" id="card-link" placeholder="https://..." class="school-field px-3 py-2" />
+          </div>
+          <div class="sm:col-span-2">
+            <label class="school-label block mb-1">Texto do link</label>
+            <input type="text" id="card-link-label" placeholder="Ex: Ver o edital" class="school-field px-3 py-2" />
+          </div>
         </div>
 
         <!-- Seletor de Cores e Fixado -->
@@ -295,42 +573,70 @@
             </label>
 
             <button type="submit" class="school-btn px-5 py-2.5 rounded-xl font-extrabold text-sm shadow-md flex items-center gap-2 transition active:scale-95">
-              <i class="fa-solid fa-paper-plane"></i> Publicar aviso
+              <i class="fa-solid fa-paper-plane"></i> Publicar recado
             </button>
           </div>
         </div>
       </form>
     </div>
 
-    <!-- CONTROLES DE BUSCA E FILTROS DO VISITANTE -->
-    <div class="paper-surface flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 p-4 rounded-2xl">
-      
-      <!-- Campo de Busca -->
-      <div class="relative flex-1">
-        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-sm" style="color: var(--muted)"></i>
-        <input type="text" id="search-input" oninput="renderCards()" placeholder="Buscar por título, texto ou quem publicou..." class="school-field pl-10 pr-4 py-2.5" />
-      </div>
-
-      <!-- Filtro por Categoria -->
-      <div class="flex items-center gap-2 overflow-x-auto custom-scrollbar pb-1 md:pb-0" id="category-filters">
-        <!-- Injetado dinamicamente via JavaScript -->
-      </div>
-    </div>
-
     <!-- CABEÇALHO DO MURAL COM CONTADOR -->
-    <div class="flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center px-1">
-      <div class="flex items-center gap-2">
-        <h2 class="text-sm font-extrabold uppercase tracking-wider" style="color: var(--school)">Mural de avisos</h2>
-        <span id="card-count" class="px-2 py-0.5 rounded-full text-xs font-extrabold" style="background: #1b5e45; color: #fff">0</span>
+    <form id="publisher-panel" onsubmit="handleStudentPublish(event)" class="school-panel hidden flex-col gap-4 p-4 sm:p-6">
+      <div>
+        <h2 id="publisher-title" class="text-base font-extrabold flex items-center gap-2">
+          <i class="fa-solid fa-pen-nib" style="color: var(--school)"></i>
+          Publicar atividade
+        </h2>
+        <p id="publisher-hint" class="text-xs mt-1" style="color: var(--muted)">A publicação aparece nesta aba para toda a escola.</p>
       </div>
-      <div class="text-xs flex items-center gap-1" style="color: var(--muted)">
-        <i class="fa-solid fa-bolt text-amber-500"></i>
-        <span id="sync-detail">Conectando ao servidor...</span>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="school-label block mb-1">Título *</label>
+          <input type="text" id="student-title" required placeholder="Ex: Meta de leitura da turma" class="school-field px-3 py-2" />
+        </div>
+        <div>
+          <label class="school-label block mb-1">Categoria *</label>
+          <input type="text" id="student-category" required placeholder="Ex: Evento, Concluído" class="school-field px-3 py-2" />
+        </div>
       </div>
+      <div>
+        <label class="school-label block mb-1">Quem publica</label>
+        <input type="text" id="student-author" placeholder="Seu nome" class="school-field px-3 py-2" />
+      </div>
+      <div>
+        <label class="school-label block mb-1">Texto *</label>
+        <textarea id="student-content" required rows="3" placeholder="Conte a atividade ou a conquista. Um endereço http vira link." class="school-field px-3 py-2 custom-scrollbar"></textarea>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="school-label block mb-1">Imagem (endereço)</label>
+          <input type="url" id="student-image" placeholder="https://..." class="school-field px-3 py-2" />
+        </div>
+        <div>
+          <label class="school-label block mb-1">Link</label>
+          <input type="url" id="student-link" placeholder="https://..." class="school-field px-3 py-2" />
+        </div>
+        <div class="sm:col-span-2">
+          <label class="school-label block mb-1">Texto do link</label>
+          <input type="text" id="student-link-label" placeholder="Ex: Ver a meta" class="school-field px-3 py-2" />
+        </div>
+      </div>
+      <div class="flex justify-end">
+        <button type="submit" class="school-btn px-5 py-2.5 rounded-xl font-extrabold text-sm shadow-md flex items-center gap-2 transition active:scale-95">
+          <i class="fa-solid fa-paper-plane"></i> Publicar
+        </button>
+      </div>
+    </form>
+
+    <div id="avisos" class="text-center">
+      <h1 class="hero-line" id="board-hero">
+        <span id="board-hero-lead">Atividades dos alunos</span>
+        <span class="script-word" id="board-hero-script">em tempo real.</span>
+      </h1>
     </div>
 
     <!-- GRID DE CARDS DO MURAL -->
-    <div id="cards-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+    <div id="cards-grid" class="cards-grid">
       <!-- Cards renderizados dinamicamente via JS -->
     </div>
 
@@ -339,8 +645,8 @@
       <div class="w-16 h-16 rounded-full flex items-center justify-center mb-4 text-2xl" style="background: var(--card); color: var(--school)">
         <i class="fa-solid fa-note-sticky"></i>
       </div>
-      <h3 class="text-base font-extrabold">Nenhum aviso encontrado</h3>
-      <p class="text-sm max-w-sm mt-1" style="color: var(--muted)">Não há avisos com essa busca, ou o mural ainda está vazio.</p>
+      <h3 id="empty-title" class="text-base font-extrabold">Nenhuma atividade encontrada</h3>
+      <p id="empty-copy" class="text-sm max-w-sm mt-1" style="color: var(--muted)">Não há atividades com essa busca, ou a aba ainda está vazia.</p>
       <button id="empty-action-btn" onclick="clearFilters()" class="school-btn mt-4 px-4 py-2 rounded-xl text-xs font-extrabold transition">
         Limpar busca
       </button>
@@ -349,11 +655,11 @@
   </main>
 
   <!-- RODAPÉ -->
-  <footer class="mt-auto py-4 text-center text-xs" style="background: #1b5e45; color: #f7f3ea">
+  <footer class="school-footer mt-auto py-4 text-center text-xs">
     <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-2">
-      <p>Mural da escola. Os avisos aparecem para todos ao mesmo tempo. <span id="app-version" class="opacity-70"></span></p>
+      <p>Mural da escola. Os avisos aparecem para todos ao mesmo tempo.</p>
       <p class="flex items-center gap-1">
-        <span id="footer-dot" class="w-2 h-2 rounded-full bg-amber-300 animate-pulse"></span>
+        <span id="footer-dot" class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
         <span id="footer-sync">Conectando...</span>
       </p>
     </div>
@@ -363,7 +669,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInAnonymously, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, doc, setDoc, updateDoc, deleteDoc, onSnapshot, getDocs, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, doc, setDoc, updateDoc, deleteDoc, onSnapshot, getDocs, increment, query, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     // --- CONFIGURAÇÃO FIREBASE E VARIÁVEIS GLOBAIS ---
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'mural-interativo-default';
@@ -380,8 +686,15 @@
       appId: "1:466500240752:web:ed0e3e4114d4c138e03bb5"
     };
 
-    // E-mail da única conta com permissão de administrador
-    const ADMIN_EMAIL = "helton020@gmail.com";
+    // Papéis por e-mail. A senha fica no Firebase Authentication, nunca neste arquivo.
+    // As mesmas listas precisam existir em firestore.rules.
+    const OWNER_EMAIL = "helton020@gmail.com";
+    const STAFF_EMAILS = [
+      // coordenação, direção, vice-direção e RH
+    ];
+    const STUDENT_EMAILS = [
+      // até seis alunos publicadores
+    ];
 
     // Visitantes entram anonimamente e só podem reagir aos cards.
     const FIREBASE_CONFIGURADO =
@@ -392,17 +705,20 @@
     let app = null, auth = null, db = null;
     let currentUser = null;
     let globalCards = [];
-    let isAdmin = false;
-    let selectedCategoryFilter = 'ALL';
+    let currentRole = 'visitante';
+    let selectedBoard = 'atividades';
     let currentColor = 'blue';
     let unsubscribeCards = null;
+    let listenerScope = 'all';
+    let unknownRoleNotified = false;
+    const legacyBackfill = new Set();
     let resubscribeTimer = null;
     let lastServerRefresh = 0;
     let syncMode = 'connecting';
 
     // Versão do app: deve ser igual ao conteúdo de version.txt.
     // A cada publicação, atualize os dois para os clientes se auto-atualizarem.
-    const APP_VERSION = '2026-11-05-2';
+    const APP_VERSION = '2026-11-17-1';
 
     // Coleção pública do Firestore
     const getCardsCollection = () => collection(db, 'artifacts', appId, 'public', 'data', 'mural_cards');
@@ -415,10 +731,10 @@
         online: {
           classes: 'bg-[#f7f3ea] text-[#1b5e45]',
           dot: 'bg-emerald-500 animate-ping',
-          text: 'Tempo Real',
+          text: 'online',
           detail: 'Todos veem os mesmos avisos',
           footerDot: 'bg-amber-300 animate-pulse',
-          footer: 'Mural conectado'
+          footer: 'Mural conectado e online'
         },
         connecting: {
           classes: 'bg-amber-100 text-amber-900',
@@ -446,7 +762,7 @@
       const footerSync = document.getElementById('footer-sync');
 
       if (indicator) {
-        indicator.className = `hidden sm:inline-flex text-[10px] px-2 py-0.5 rounded-full font-semibold items-center gap-1 shrink-0 ${status.classes}`;
+        indicator.className = `inline-flex text-[10px] px-2 py-0.5 rounded-full font-semibold items-center gap-1 normal-case tracking-normal ${status.classes}`;
         indicator.innerHTML = `<span class="w-1.5 h-1.5 rounded-full ${status.dot}"></span>${status.text}`;
       }
       if (detail) detail.textContent = status.detail;
@@ -477,31 +793,38 @@
       }
 
       setSyncStatus('connecting');
-      subscribeToCards();
 
       onAuthStateChanged(auth, (user) => {
         currentUser = user;
-        const isAdminAccount = Boolean(user && user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase());
+        const previousRole = currentRole;
+        currentRole = roleForEmail(user && user.email);
+        if (selectedBoard === 'recados' && !canSeeRecados()) selectedBoard = 'atividades';
+        updateAccessUI();
 
-        if (user && user.email && !isAdminAccount) {
-          showToast('Esta conta não tem permissão de administrador.', 'danger');
-          signOut(auth);
-          return;
+        const signedInWithEmail = Boolean(user && user.email);
+        if (signedInWithEmail && currentRole === 'visitante' && !unknownRoleNotified) {
+          unknownRoleNotified = true;
+          showToast('Esta conta não tem permissão de publicação.', 'warning');
+        }
+        if (!signedInWithEmail) unknownRoleNotified = false;
+
+        if (currentRole !== 'visitante' && previousRole !== currentRole) {
+          const welcome = {
+            proprietario: 'Bem-vindo, proprietário!',
+            equipe: 'Bem-vindo à equipe!',
+            aluno: 'Bem-vindo! Você pode publicar atividades e conquistas.'
+          };
+          showToast(welcome[currentRole], 'success');
         }
 
-        const wasAdmin = isAdmin;
-        isAdmin = isAdminAccount;
-        updateAdminUI();
-
-        if (isAdmin && !wasAdmin) showToast('Bem-vindo, administrador!', 'success');
-
         // Visitantes entram anonimamente para poder reagir aos cards.
-        // Só faz isso quando não há sessão salva (admin continua logado ao recarregar).
         if (!user) {
           signInAnonymously(auth).catch((err) => {
             console.warn('Login anônimo indisponível (reações desativadas):', err);
           });
         }
+
+        subscribeToCards();
       });
 
       window.addEventListener('offline', () => setSyncStatus('local'));
@@ -519,6 +842,93 @@
       });
     }
 
+    function roleForEmail(email) {
+      const value = (email || '').toLowerCase();
+      if (!value) return 'visitante';
+      if (value === OWNER_EMAIL.toLowerCase()) return 'proprietario';
+      if (STAFF_EMAILS.some((item) => item.toLowerCase() === value)) return 'equipe';
+      if (STUDENT_EMAILS.some((item) => item.toLowerCase() === value)) return 'aluno';
+      return 'visitante';
+    }
+
+    function canSeeRecados() {
+      return currentRole === 'proprietario' || currentRole === 'equipe';
+    }
+
+    function canPublishPublic() {
+      return currentRole === 'proprietario' || currentRole === 'aluno';
+    }
+
+    function cardBoard(card) {
+      return card.board || 'atividades';
+    }
+
+    function sessionEmail() {
+      return (currentUser && currentUser.email ? currentUser.email : '').toLowerCase();
+    }
+
+    function canManageCard(card) {
+      if (currentRole === 'proprietario') return true;
+      const email = sessionEmail();
+      if (!email || !card.authorEmail || card.authorEmail.toLowerCase() !== email) return false;
+      const board = cardBoard(card);
+      if (currentRole === 'equipe') return board === 'recados';
+      if (currentRole === 'aluno') return board === 'atividades' || board === 'conquistas';
+      return false;
+    }
+
+    function applyCardSnapshot(snapshot) {
+      globalCards = snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
+      localStorage.setItem('mural_interativo_backup', JSON.stringify(globalCards));
+      lastServerRefresh = Date.now();
+      setSyncStatus('online');
+      renderCards();
+      if (currentRole === 'proprietario') backfillLegacyBoards(snapshot.docs);
+    }
+
+    function backfillLegacyBoards(docs) {
+      docs.forEach((docSnap) => {
+        if (docSnap.data().board || legacyBackfill.has(docSnap.id)) return;
+        legacyBackfill.add(docSnap.id);
+        updateDoc(docSnap.ref, { board: 'atividades' }).catch((err) => {
+          legacyBackfill.delete(docSnap.id);
+          console.warn('Não foi possível classificar um aviso antigo:', err);
+        });
+      });
+    }
+
+    function onCardsError(error, allowPublicFallback) {
+      console.error('Erro na escuta do Firestore:', error);
+      if (allowPublicFallback && error.code === 'permission-denied') {
+        listenPublicBoards();
+        return;
+      }
+      unsubscribeCards = null;
+      setSyncStatus('local');
+      loadFallbackLocalCards();
+      if (error.code === 'permission-denied') {
+        showToast('Sem permissão de leitura no Firestore. Confira as regras.', 'danger');
+        scheduleResubscribe(30000);
+      } else {
+        scheduleResubscribe(5000);
+      }
+    }
+
+    function listenPublicBoards() {
+      if (!db) return;
+      if (unsubscribeCards) {
+        try { unsubscribeCards(); } catch (_) {}
+        unsubscribeCards = null;
+      }
+      listenerScope = 'public';
+      const publicQuery = query(getCardsCollection(), where('board', 'in', ['atividades', 'conquistas']));
+      unsubscribeCards = onSnapshot(
+        publicQuery,
+        applyCardSnapshot,
+        (error) => onCardsError(error, false)
+      );
+    }
+
     function subscribeToCards() {
       if (!db) return;
       if (unsubscribeCards) {
@@ -526,27 +936,12 @@
         unsubscribeCards = null;
       }
 
+      const readAll = canSeeRecados();
+      listenerScope = 'all';
       unsubscribeCards = onSnapshot(
         getCardsCollection(),
-        (snapshot) => {
-          globalCards = snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
-          localStorage.setItem('mural_interativo_backup', JSON.stringify(globalCards));
-          lastServerRefresh = Date.now();
-          setSyncStatus('online');
-          renderCards();
-        },
-        (error) => {
-          console.error('Erro na escuta do Firestore:', error);
-          unsubscribeCards = null;
-          setSyncStatus('local');
-          loadFallbackLocalCards();
-          if (error.code === 'permission-denied') {
-            showToast('Sem permissão de leitura no Firestore. Confira as regras.', 'danger');
-            scheduleResubscribe(30000);
-          } else {
-            scheduleResubscribe(5000);
-          }
-        }
+        applyCardSnapshot,
+        (error) => onCardsError(error, !readAll)
       );
     }
 
@@ -565,12 +960,23 @@
       lastServerRefresh = now;
 
       try {
-        const snapshot = await getDocs(getCardsCollection());
-        globalCards = snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
-        localStorage.setItem('mural_interativo_backup', JSON.stringify(globalCards));
-        setSyncStatus('online');
-        renderCards();
+        const source = listenerScope === 'public'
+          ? query(getCardsCollection(), where('board', 'in', ['atividades', 'conquistas']))
+          : getCardsCollection();
+        const snapshot = await getDocs(source);
+        applyCardSnapshot(snapshot);
       } catch (err) {
+        if (listenerScope !== 'public' && err.code === 'permission-denied') {
+          try {
+            const snapshot = await getDocs(query(getCardsCollection(), where('board', 'in', ['atividades', 'conquistas'])));
+            listenerScope = 'public';
+            applyCardSnapshot(snapshot);
+            listenPublicBoards();
+            return;
+          } catch (inner) {
+            console.warn('Falha ao atualizar as abas públicas:', inner);
+          }
+        }
         console.warn('Falha ao atualizar os cards sob demanda:', err);
       }
     }
@@ -601,13 +1007,13 @@
 
     // --- MODO ADMIN COM FIREBASE AUTH ---
     window.toggleAdminMode = function() {
-      if (isAdmin) {
+      if (currentUser && currentUser.email) {
         adminLogout();
         return;
       }
 
       if (!FIREBASE_CONFIGURADO) {
-        showToast('Configure o Firebase para habilitar o modo administrador.', 'warning');
+        showToast('Configure o Firebase para entrar com e-mail e senha.', 'warning');
         return;
       }
 
@@ -616,9 +1022,9 @@
           <div class="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 text-xl" style="background: #e7f2eb; color: #1b5e45">
             <i class="fa-solid fa-user-shield"></i>
           </div>
-          <h3 class="text-lg font-extrabold">Login da coordenação</h3>
-          <p class="text-xs mt-1 mb-4" style="color: var(--muted)">Entre com a conta da coordenação.</p>
-          <input type="email" id="admin-email-input" autocomplete="username" placeholder="E-mail do administrador" class="school-field px-3 py-2 mb-2" />
+          <h3 class="text-lg font-extrabold">Entrar no mural</h3>
+          <p class="text-xs mt-1 mb-4" style="color: var(--muted)">Use o e-mail e a senha cadastrados no Firebase. A senha não fica salva nesta página.</p>
+          <input type="email" id="admin-email-input" autocomplete="username" placeholder="E-mail" class="school-field px-3 py-2 mb-2" />
           <input type="password" id="admin-pass-input" autocomplete="current-password" placeholder="Senha" class="school-field px-3 py-2 mb-2" />
           <p id="admin-login-error" class="hidden text-xs text-rose-600 mb-2"></p>
           <div class="flex justify-center gap-3 mt-2">
@@ -673,31 +1079,132 @@
       } catch (err) {
         console.warn('Erro ao sair do admin:', err);
       }
-      isAdmin = false;
-      updateAdminUI();
-      showToast('Você saiu da coordenação.', 'info');
+      currentRole = 'visitante';
+      selectedBoard = 'atividades';
+      updateAccessUI();
+      showToast('Você saiu da conta.', 'info');
       // O onAuthStateChanged detecta a sessão nula e entra como visitante anônimo
     }
 
-    function updateAdminUI() {
-      const panel = document.getElementById('admin-tools-panel');
-      const badge = document.getElementById('admin-badge');
-      const btnText = document.getElementById('btn-admin-text');
+    function setShown(element, shown, displayClass) {
+      if (!element) return;
+      element.classList.toggle('hidden', !shown);
+      if (displayClass) element.classList.toggle(displayClass, shown);
+    }
 
-      if (isAdmin) {
-        panel.classList.remove('hidden');
-        panel.classList.add('flex');
-        badge.classList.remove('hidden');
-        badge.classList.add('flex');
-        btnText.textContent = 'Sair da coordenação';
-      } else {
-        panel.classList.add('hidden');
-        panel.classList.remove('flex');
-        badge.classList.add('hidden');
-        badge.classList.remove('flex');
-        btnText.textContent = 'Entrar como administrador';
+    function updateAccessUI() {
+      const onRecados = selectedBoard === 'recados' && canSeeRecados();
+      const onPublicBoard = selectedBoard === 'atividades' || selectedBoard === 'conquistas';
+      setShown(document.getElementById('admin-tools-panel'), onRecados, 'flex');
+      setShown(document.getElementById('owner-tools'), onRecados && currentRole === 'proprietario', 'flex');
+      setShown(document.getElementById('publisher-panel'), onPublicBoard && canPublishPublic(), 'flex');
+      setShown(document.getElementById('tab-recados'), canSeeRecados(), '');
+
+      const badge = document.getElementById('admin-badge');
+      const badgeLabel = document.getElementById('admin-badge-label');
+      const signedIn = Boolean(currentUser && currentUser.email);
+      setShown(badge, signedIn && currentRole !== 'visitante', 'flex');
+      if (badgeLabel) {
+        const labels = { proprietario: 'Proprietário', equipe: 'Equipe', aluno: 'Aluno' };
+        badgeLabel.textContent = labels[currentRole] || '';
       }
+
+      const btn = document.getElementById('btn-toggle-admin');
+      const btnText = document.getElementById('btn-admin-text');
+      const loginLabel = signedIn ? 'Sair' : 'Entrar';
+      if (btn) btn.title = loginLabel;
+      if (btnText) btnText.textContent = loginLabel;
+
+      const hero = {
+        recados: ['Recados internos da equipe', 'só quem tem acesso.'],
+        atividades: ['Atividades dos alunos', 'em tempo real.'],
+        conquistas: ['Mural da conquista', 'metas alcançadas.']
+      }[selectedBoard] || ['Atividades dos alunos', 'em tempo real.'];
+      const heroLead = document.getElementById('board-hero-lead');
+      const heroScript = document.getElementById('board-hero-script');
+      if (heroLead) heroLead.textContent = hero[0];
+      if (heroScript) heroScript.textContent = hero[1];
+
+      const publisherTitle = document.getElementById('publisher-title');
+      const publisherHint = document.getElementById('publisher-hint');
+      if (publisherTitle) {
+        publisherTitle.innerHTML = `<i class="fa-solid fa-pen-nib" style="color: var(--school)"></i> ${selectedBoard === 'conquistas' ? 'Publicar conquista' : 'Publicar atividade'}`;
+      }
+      if (publisherHint) {
+        publisherHint.textContent = selectedBoard === 'conquistas'
+          ? 'A conquista aparece nesta aba para toda a escola.'
+          : 'A atividade aparece nesta aba para toda a escola.';
+      }
+
+      ['recados', 'atividades', 'conquistas'].forEach((board) => {
+        const tab = document.getElementById(`tab-${board}`);
+        if (!tab) return;
+        const active = board === selectedBoard;
+        tab.classList.toggle('is-active', active);
+        if (active) tab.setAttribute('aria-current', 'page');
+        else tab.removeAttribute('aria-current');
+      });
+
       renderCards();
+    }
+
+    window.setBoard = function(board) {
+      if (board === 'recados' && !canSeeRecados()) return;
+      if (!['recados', 'atividades', 'conquistas'].includes(board)) return;
+      selectedBoard = board;
+      const search = document.getElementById('search-input');
+      if (search) search.value = '';
+      updateAccessUI();
+    };
+
+    function safeHttpUrl(value) {
+      const raw = (value || '').trim();
+      if (!raw) return '';
+      try {
+        const url = new URL(raw);
+        if (url.protocol !== 'http:' && url.protocol !== 'https:') return '';
+        return url.href;
+      } catch (_) {
+        return '';
+      }
+    }
+
+    function readOptionalUrl(inputId, label) {
+      const raw = (document.getElementById(inputId)?.value || '').trim();
+      if (!raw) return '';
+      const safe = safeHttpUrl(raw);
+      if (!safe) {
+        showToast(`${label} precisa começar com http:// ou https://.`, 'warning');
+        return null;
+      }
+      return safe;
+    }
+
+    function linkifyText(text) {
+      const source = text || '';
+      const pattern = /https?:\/\/[^\s<]+/g;
+      let html = '';
+      let last = 0;
+      let match;
+      while ((match = pattern.exec(source))) {
+        html += escapeHtml(source.slice(last, match.index));
+        let url = match[0];
+        let trail = '';
+        while (url && /[.,;:!?)]$/.test(url)) {
+          trail = url.slice(-1) + trail;
+          url = url.slice(0, -1);
+        }
+        const safe = safeHttpUrl(url);
+        if (safe) {
+          html += `<a href="${escapeHtml(safe)}" class="notice-link" target="_blank" rel="noopener noreferrer">${escapeHtml(url)}</a>`;
+        } else {
+          html += escapeHtml(url);
+        }
+        html += escapeHtml(trail);
+        last = match.index + match[0].length;
+      }
+      html += escapeHtml(source.slice(last));
+      return html;
     }
 
     // --- AÇÕES COM CARDS (CRIAR, EXCLUIR, ATUALIZAR, REAGIR) ---
@@ -708,6 +1215,9 @@
       const category = document.getElementById('card-category').value.trim();
       const author = document.getElementById('card-author').value.trim() || 'Administrador';
       const content = document.getElementById('card-content').value.trim();
+      const imageUrl = readOptionalUrl('card-image', 'A imagem');
+      const linkUrl = readOptionalUrl('card-link', 'O link');
+      const linkLabel = document.getElementById('card-link-label').value.trim();
       const color = document.getElementById('selected-color').value || 'blue';
       const pinned = document.getElementById('card-pinned').checked;
 
@@ -715,20 +1225,26 @@
         showToast('Preencha os campos obrigatórios!', 'warning');
         return;
       }
+      if (imageUrl === null || linkUrl === null) return;
 
       const newCard = {
         title,
         category,
         author,
         content,
+        imageUrl,
+        linkUrl,
+        linkLabel,
         color,
         pinned,
         likes: 0,
+        board: 'recados',
+        authorEmail: sessionEmail(),
         createdAt: new Date().toISOString()
       };
 
-      if (FIREBASE_CONFIGURADO && !isAdmin) {
-        showToast('Apenas o administrador pode publicar.', 'warning');
+      if (FIREBASE_CONFIGURADO && !canSeeRecados()) {
+        showToast('Apenas a equipe pode publicar recados internos.', 'warning');
         return;
       }
 
@@ -745,10 +1261,66 @@
 
         document.getElementById('create-card-form').reset();
         selectColor('blue');
-        showToast('Aviso publicado para toda a escola!', 'success');
+        showToast('Recado interno publicado.', 'success');
       } catch (err) {
         console.error("Erro ao salvar card:", err);
         showToast('Não foi possível publicar o aviso. Verifique sua permissão.', 'danger');
+      }
+    };
+
+    window.handleStudentPublish = async function(e) {
+      e.preventDefault();
+      const board = selectedBoard === 'conquistas' ? 'conquistas' : 'atividades';
+      if (board !== 'atividades' && board !== 'conquistas') return;
+      if (FIREBASE_CONFIGURADO && !canPublishPublic()) {
+        showToast('Sua conta não publica nesta aba.', 'warning');
+        return;
+      }
+
+      const title = document.getElementById('student-title').value.trim();
+      const category = document.getElementById('student-category').value.trim();
+      const author = document.getElementById('student-author').value.trim() || 'Aluno';
+      const content = document.getElementById('student-content').value.trim();
+      const imageUrl = readOptionalUrl('student-image', 'A imagem');
+      const linkUrl = readOptionalUrl('student-link', 'O link');
+      const linkLabel = document.getElementById('student-link-label').value.trim();
+      if (!title || !category || !content) {
+        showToast('Preencha os campos obrigatórios!', 'warning');
+        return;
+      }
+      if (imageUrl === null || linkUrl === null) return;
+
+      const newCard = {
+        title,
+        category,
+        author,
+        content,
+        imageUrl,
+        linkUrl,
+        linkLabel,
+        color: 'emerald',
+        pinned: false,
+        likes: 0,
+        board,
+        authorEmail: sessionEmail(),
+        createdAt: new Date().toISOString()
+      };
+
+      try {
+        if (FIREBASE_CONFIGURADO) {
+          const docRef = doc(getCardsCollection());
+          await setDoc(docRef, { ...newCard, id: docRef.id });
+        } else {
+          newCard.id = Date.now().toString();
+          globalCards.unshift(newCard);
+          localStorage.setItem('mural_interativo_backup', JSON.stringify(globalCards));
+          renderCards();
+        }
+        document.getElementById('publisher-panel').reset();
+        showToast(board === 'conquistas' ? 'Conquista publicada.' : 'Atividade publicada.', 'success');
+      } catch (err) {
+        console.error('Erro ao publicar:', err);
+        showToast('Não foi possível publicar. Verifique sua permissão.', 'danger');
       }
     };
 
@@ -777,6 +1349,8 @@
     };
 
     window.deleteCard = function(id) {
+      const card = globalCards.find(c => c.id === id);
+      if (!card || !canManageCard(card)) return;
       openCustomModal(`
         <div class="text-center">
           <div class="w-12 h-12 rounded-full bg-rose-100 dark:bg-rose-900/50 text-rose-600 dark:text-rose-400 flex items-center justify-center mx-auto mb-3 text-xl">
@@ -793,6 +1367,8 @@
     };
 
     window.confirmDeleteCard = async function(id) {
+      const card = globalCards.find(c => c.id === id);
+      if (!card || !canManageCard(card)) return;
       try {
         if (FIREBASE_CONFIGURADO) {
           await deleteDoc(getCardDoc(id));
@@ -811,7 +1387,7 @@
 
     window.togglePinCard = async function(id) {
       const card = globalCards.find(c => c.id === id);
-      if (!card) return;
+      if (!card || !canManageCard(card)) return;
 
       try {
         if (FIREBASE_CONFIGURADO) {
@@ -829,7 +1405,7 @@
 
     window.editCard = function(id) {
       const card = globalCards.find(c => c.id === id);
-      if (!card) return;
+      if (!card || !canManageCard(card)) return;
 
       openCustomModal(`
         <div>
@@ -855,6 +1431,20 @@
               <label class="school-label block mb-1">Texto do aviso</label>
               <textarea id="edit-content" required rows="3" class="school-field px-3 py-1.5 custom-scrollbar">${escapeHtml(card.content)}</textarea>
             </div>
+            <div>
+              <label class="school-label block mb-1">Imagem (endereço)</label>
+              <input type="url" id="edit-image" value="${escapeHtml(card.imageUrl || '')}" placeholder="https://..." class="school-field px-3 py-1.5" />
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="school-label block mb-1">Link</label>
+                <input type="url" id="edit-link" value="${escapeHtml(card.linkUrl || '')}" placeholder="https://..." class="school-field px-3 py-1.5" />
+              </div>
+              <div>
+                <label class="school-label block mb-1">Texto do link</label>
+                <input type="text" id="edit-link-label" value="${escapeHtml(card.linkLabel || '')}" placeholder="Abrir link" class="school-field px-3 py-1.5" />
+              </div>
+            </div>
             <div class="flex justify-end gap-2 mt-2">
               <button type="button" onclick="closeCustomModal()" class="px-3 py-1.5 rounded-lg text-xs font-extrabold border" style="border-color: var(--line)">Cancelar</button>
               <button type="submit" class="school-btn px-4 py-1.5 rounded-lg text-xs font-extrabold">Salvar alterações</button>
@@ -866,24 +1456,36 @@
 
     window.saveEditCard = async function(e, id) {
       e.preventDefault();
+      const card = globalCards.find(c => c.id === id);
+      if (!card || !canManageCard(card)) return;
       const title = document.getElementById('edit-title').value.trim();
       const category = document.getElementById('edit-category').value.trim();
       const author = document.getElementById('edit-author').value.trim() || 'Administrador';
       const content = document.getElementById('edit-content').value.trim();
+      const imageUrl = readOptionalUrl('edit-image', 'A imagem');
+      const linkUrl = readOptionalUrl('edit-link', 'O link');
+      const linkLabel = document.getElementById('edit-link-label').value.trim();
+      if (imageUrl === null || linkUrl === null) return;
 
       try {
         if (FIREBASE_CONFIGURADO) {
-          await updateDoc(getCardDoc(id), { title, category, author, content });
+          await updateDoc(getCardDoc(id), { title, category, author, content, imageUrl, linkUrl, linkLabel });
         } else {
-          const card = globalCards.find(c => c.id === id);
-          if (card) {
-            card.title = title; card.category = category; card.author = author; card.content = content;
+          const current = globalCards.find(c => c.id === id);
+          if (current) {
+            current.title = title;
+            current.category = category;
+            current.author = author;
+            current.content = content;
+            current.imageUrl = imageUrl;
+            current.linkUrl = linkUrl;
+            current.linkLabel = linkLabel;
             localStorage.setItem('mural_interativo_backup', JSON.stringify(globalCards));
             renderCards();
           }
         }
         closeCustomModal();
-        showToast('Aviso atualizado para toda a escola!', 'success');
+        showToast('Publicação atualizada.', 'success');
       } catch (err) {
         console.error(err);
       }
@@ -905,29 +1507,8 @@
     };
 
     // --- FILTROS E RENDERIZAÇÃO ---
-    function renderCategoryFilters() {
-      const container = document.getElementById('category-filters');
-      const categories = ['ALL', ...new Set(globalCards.map(c => c.category).filter(Boolean))];
-
-      container.innerHTML = categories.map(cat => {
-        const isSelected = selectedCategoryFilter === cat;
-        const label = cat === 'ALL' ? 'Todos' : cat;
-        return `
-          <button onclick="setCategoryFilter('${cat}')" class="chip ${isSelected ? 'chip-active' : ''}">
-            ${escapeHtml(label)}
-          </button>
-        `;
-      }).join('');
-    }
-
-    window.setCategoryFilter = function(category) {
-      selectedCategoryFilter = category;
-      renderCards();
-    };
-
     window.clearFilters = function() {
       document.getElementById('search-input').value = '';
-      selectedCategoryFilter = 'ALL';
       renderCards();
     };
 
@@ -936,17 +1517,29 @@
       const grid = document.getElementById('cards-grid');
       const emptyState = document.getElementById('empty-state');
       const countBadge = document.getElementById('card-count');
+      const emptyCopy = {
+        recados: ['Nenhum recado interno', 'A equipe ainda não publicou nesta aba.'],
+        atividades: ['Nenhuma atividade encontrada', 'Não há atividades com essa busca, ou a aba ainda está vazia.'],
+        conquistas: ['Nenhuma conquista encontrada', 'Nenhuma meta publicada com essa busca, ou a aba ainda está vazia.']
+      }[selectedBoard] || ['Nenhuma atividade encontrada', 'A aba ainda está vazia.'];
+      const emptyTitle = document.getElementById('empty-title');
+      const emptyText = document.getElementById('empty-copy');
+      if (emptyTitle) emptyTitle.textContent = emptyCopy[0];
+      if (emptyText) emptyText.textContent = emptyCopy[1];
 
-      renderCategoryFilters();
+      const boardCards = globalCards.filter((card) => {
+        if (cardBoard(card) !== selectedBoard) return false;
+        if (selectedBoard === 'recados' && !canSeeRecados()) return false;
+        return true;
+      });
 
-      let filtered = globalCards.filter(card => {
-        const matchCategory = selectedCategoryFilter === 'ALL' || (card.category && card.category.toLowerCase() === selectedCategoryFilter.toLowerCase());
-        const matchSearch = !searchSearch || 
+      let filtered = boardCards.filter(card => {
+        return !searchSearch || 
           (card.title && card.title.toLowerCase().includes(searchSearch)) ||
           (card.content && card.content.toLowerCase().includes(searchSearch)) ||
           (card.author && card.author.toLowerCase().includes(searchSearch)) ||
-          (card.category && card.category.toLowerCase().includes(searchSearch));
-        return matchCategory && matchSearch;
+          (card.category && card.category.toLowerCase().includes(searchSearch)) ||
+          (card.linkLabel && card.linkLabel.toLowerCase().includes(searchSearch));
       });
 
       filtered.sort((a, b) => {
@@ -955,7 +1548,7 @@
         return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
       });
 
-      countBadge.textContent = filtered.length;
+      if (countBadge) countBadge.textContent = filtered.length;
 
       if (filtered.length === 0) {
         grid.innerHTML = '';
@@ -967,38 +1560,28 @@
       emptyState.classList.add('hidden');
       emptyState.classList.remove('flex');
 
-      const colorMap = {
-        blue: { stripe: 'bg-blue-500', badge: 'bg-blue-100 text-blue-800' },
-        emerald: { stripe: 'bg-emerald-500', badge: 'bg-emerald-100 text-emerald-800' },
-        amber: { stripe: 'bg-amber-400', badge: 'bg-amber-100 text-amber-900' },
-        rose: { stripe: 'bg-rose-500', badge: 'bg-rose-100 text-rose-800' },
-        purple: { stripe: 'bg-purple-500', badge: 'bg-purple-100 text-purple-800' }
-      };
-
       grid.innerHTML = filtered.map(card => {
-        const style = colorMap[card.color] || colorMap.blue;
-        const formattedDate = formatDate(card.createdAt);
         const likesCount = card.likes || 0;
+        const imageUrl = safeHttpUrl(card.imageUrl);
+        const linkUrl = safeHttpUrl(card.linkUrl);
 
         return `
-          <div class="notice-card card-transition group">
-            <div class="notice-stripe ${style.stripe}"></div>
+          <article class="notice-card card-transition group">
             ${card.pinned ? '<span class="notice-pin" title="Fixado"></span>' : ''}
 
-            <div>
-              <div class="flex items-center justify-between gap-2 mb-3 mt-1">
-                <span class="px-2.5 py-1 rounded-lg text-xs font-extrabold ${style.badge}">
-                  ${escapeHtml(card.category)}
-                </span>
-
-                <div class="flex items-center gap-1.5">
+            <div class="flex-1">
+              ${imageUrl ? `<img class="notice-image" src="${escapeHtml(imageUrl)}" alt="" onerror="this.remove()" />` : ''}
+              <div class="flex items-start justify-between gap-2 mb-4">
+                <h3 class="text-xl font-extrabold leading-snug">
+                  ${escapeHtml(card.title)}
+                </h3>
+                <div class="flex items-center gap-1.5 shrink-0">
                   ${card.pinned ? `
                     <span class="text-amber-700 text-xs font-extrabold flex items-center gap-1 bg-amber-100 px-2 py-0.5 rounded-md">
-                      <i class="fa-solid fa-thumbtack"></i> Fixado
+                      <i class="fa-solid fa-thumbtack"></i>
                     </span>
                   ` : ''}
-
-                  ${isAdmin ? `
+                  ${canManageCard(card) ? `
                     <button onclick="togglePinCard('${card.id}')" title="${card.pinned ? 'Desfixar' : 'Fixar'}" class="w-7 h-7 rounded-lg hover:bg-amber-50 text-amber-700 transition flex items-center justify-center">
                       <i class="fa-solid fa-thumbtack text-xs"></i>
                     </button>
@@ -1012,37 +1595,35 @@
                 </div>
               </div>
 
-              <h3 class="text-lg font-extrabold leading-snug mb-2">
-                ${escapeHtml(card.title)}
-              </h3>
-
-              <p class="text-sm leading-relaxed whitespace-pre-line mb-4" style="color: var(--muted)">
-                ${escapeHtml(card.content)}
+              <p class="text-base leading-relaxed whitespace-pre-line" style="color: var(--muted)">
+                ${linkifyText(card.content)}
               </p>
+              ${linkUrl ? `<a class="notice-link notice-action" href="${escapeHtml(linkUrl)}" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-arrow-up-right-from-square"></i>${escapeHtml(card.linkLabel || 'Abrir link')}</a>` : ''}
             </div>
 
-            <div class="pt-3 flex items-center justify-between text-xs" style="border-top: 1px dashed var(--line)">
+            <div class="mt-6 pt-3 flex items-center justify-between text-xs" style="border-top: 1px solid #eeeae4">
               <span class="flex items-center gap-1.5 font-bold" style="color: var(--ink)">
                 <i class="fa-solid fa-user-circle text-sm" style="color: var(--school)"></i>
-                ${escapeHtml(card.author)}
+                ${escapeHtml(card.author || 'Escola')}
               </span>
-
-              <div class="flex items-center gap-3">
-                <button onclick="toggleLikeCard('${card.id}')" class="flex items-center gap-1 px-2 py-1 rounded-lg border transition" style="border-color: var(--line); color: var(--muted)">
-                  <i class="fa-solid fa-heart ${likesCount > 0 ? 'text-rose-500' : ''}"></i>
-                  <span class="font-extrabold text-xs">${likesCount}</span>
-                </button>
-                <span style="color: var(--muted)">${formattedDate}</span>
-              </div>
+              <button onclick="toggleLikeCard('${card.id}')" class="flex items-center gap-1 px-2 py-1 rounded-lg border transition" style="border-color: var(--line); color: var(--muted)" title="Curtir" aria-label="Curtir">
+                <i class="fa-solid fa-heart ${likesCount > 0 ? 'text-rose-500' : ''}"></i>
+                <span class="font-extrabold text-xs">${likesCount}</span>
+              </button>
             </div>
-
-          </div>
+          </article>
         `;
       }).join('');
     }
 
+    window.renderCards = renderCards;
+
     // --- EXPORTAR E IMPORTAR ---
     window.exportData = function() {
+      if (currentRole !== 'proprietario') {
+        showToast('Só o proprietário exporta o mural.', 'warning');
+        return;
+      }
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(globalCards, null, 2));
       const downloadAnchor = document.createElement('a');
       downloadAnchor.setAttribute("href", dataStr);
@@ -1062,14 +1643,21 @@
         try {
           const imported = JSON.parse(e.target.result);
           if (Array.isArray(imported)) {
-            if (FIREBASE_CONFIGURADO && !isAdmin) {
-              showToast('Apenas o administrador pode importar.', 'warning');
+            if (FIREBASE_CONFIGURADO && currentRole !== 'proprietario') {
+              showToast('Só o proprietário pode importar.', 'warning');
               return;
             }
             if (FIREBASE_CONFIGURADO) {
               for (const item of imported) {
+                const board = ['recados', 'atividades', 'conquistas'].includes(item.board) ? item.board : 'atividades';
                 const docRef = doc(getCardsCollection());
-                await setDoc(docRef, { ...item, id: docRef.id });
+                await setDoc(docRef, {
+                  ...item,
+                  id: docRef.id,
+                  board,
+                  likes: Number(item.likes) || 0,
+                  authorEmail: item.authorEmail || sessionEmail()
+                });
               }
             } else {
               globalCards = [...imported, ...globalCards];
@@ -1086,14 +1674,13 @@
     };
 
     // --- TEMAS E TOASTS ---
-    window.toggleDarkMode = function() {
-      if (document.documentElement.classList.contains('dark')) {
-        document.documentElement.classList.remove('dark');
-        localStorage.theme = 'light';
-      } else {
-        document.documentElement.classList.add('dark');
-        localStorage.theme = 'dark';
-      }
+    window.goToAvisos = function() {
+      document.getElementById('avisos').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+
+    window.focusMuralSearch = function() {
+      const input = document.getElementById('search-input');
+      if (input) input.focus();
     };
 
     window.openCustomModal = function(htmlContent) {
@@ -1168,15 +1755,8 @@
 
     // Inicialização ao carregar janela
     window.onload = function() {
-      if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
+      document.documentElement.classList.remove('dark');
       initFirebase();
-
-      const versionEl = document.getElementById('app-version');
-      if (versionEl) versionEl.textContent = `· v${APP_VERSION}`;
 
       checkForNewVersion();
       setInterval(checkForNewVersion, 5 * 60 * 1000);
