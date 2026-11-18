@@ -695,7 +695,7 @@
 
     // Versão do app: deve ser igual ao conteúdo de version.txt.
     // A cada publicação, atualize os dois para os clientes se auto-atualizarem.
-    const APP_VERSION = '2026-11-17-5';
+    const APP_VERSION = '2026-11-17-6';
 
     // Coleção pública do Firestore
     const getCardsCollection = () => collection(db, 'artifacts', appId, 'public', 'data', 'mural_cards');
@@ -833,7 +833,7 @@
     }
 
     function canPublishPublic() {
-      return currentRole === 'proprietario' || currentRole === 'aluno';
+      return currentRole === 'proprietario' || currentRole === 'equipe' || currentRole === 'aluno';
     }
 
     function cardBoard(card) {
@@ -889,7 +889,7 @@
       const email = sessionEmail();
       if (!email || !card.authorEmail || card.authorEmail.toLowerCase() !== email) return false;
       const board = cardBoard(card);
-      if (currentRole === 'equipe') return board === 'recados';
+      if (currentRole === 'equipe') return board === 'recados' || board === 'atividades' || board === 'conquistas';
       if (currentRole === 'aluno') return board === 'atividades' || board === 'conquistas';
       return false;
     }
