@@ -496,23 +496,13 @@
   <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex flex-col gap-6">
 
     <!-- ESTATÍSTICAS E FERRAMENTAS DO ADMIN (visível apenas para admin) -->
-    <div id="admin-tools-panel" class="school-panel hidden flex-col gap-4 p-4 sm:p-6">
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h2 class="text-base font-extrabold flex items-center gap-2">
-            <i class="fa-solid fa-chalkboard-user" style="color: var(--school)"></i>
-            Mesa da equipe
-          </h2>
-          <p class="text-xs mt-1" style="color: var(--muted)">Recado interno. Só a equipe e o proprietário veem esta aba.</p>
-        </div>
-      </div>
-
-      <button type="button" id="open-recado-form" onclick="openComposer('recados')" class="school-btn self-start px-4 py-2 rounded-xl text-sm font-extrabold">
+    <div id="admin-tools-panel" class="hidden flex-col items-center gap-3">
+      <button type="button" id="open-recado-form" onclick="openComposer('recados')" class="composer-open school-btn text-sm font-extrabold">
         Criar Recado
       </button>
 
       <!-- FORMULÁRIO DE CRIAÇÃO DE CARD -->
-      <form id="create-card-form" onsubmit="handleCreateCard(event)" class="paper-surface mt-2 p-4 sm:p-5 rounded-xl hidden flex-col gap-4">
+      <form id="create-card-form" onsubmit="handleCreateCard(event)" class="school-panel hidden w-full flex-col gap-4 p-4 sm:p-6">
         <h3 class="text-sm font-extrabold flex items-center gap-2">
           <i class="fa-solid fa-plus-circle" style="color: var(--school)"></i> Novo recado interno
         </h3>
@@ -705,7 +695,7 @@
 
     // Versão do app: deve ser igual ao conteúdo de version.txt.
     // A cada publicação, atualize os dois para os clientes se auto-atualizarem.
-    const APP_VERSION = '2026-11-17-4';
+    const APP_VERSION = '2026-11-17-5';
 
     // Coleção pública do Firestore
     const getCardsCollection = () => collection(db, 'artifacts', appId, 'public', 'data', 'mural_cards');
