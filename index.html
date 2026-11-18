@@ -207,6 +207,20 @@
       white-space: nowrap;
       text-shadow: 8px 12px 12px rgba(44, 36, 22, 0.28), 4px 6px 5px rgba(44, 36, 22, 0.14);
     }
+    @media (max-width: 700px) {
+      .brand-row {
+        gap: 0.5rem;
+      }
+      .brand-title {
+        min-width: 0;
+        white-space: normal;
+        font-size: clamp(1.55rem, 7.4vw, 2.35rem);
+        line-height: 1.05;
+      }
+      .brand-break {
+        display: block;
+      }
+    }
     .dark .brand-title {
       color: #d7b56a;
     }
@@ -485,9 +499,9 @@
   </div>
   <header id="topo">
     <div class="nav-bar">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-h-16 py-2 flex items-center justify-center gap-3">
+      <div class="brand-row max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-h-16 py-2 flex items-center justify-center gap-3">
         <img src="coruja.png" alt="Coruja da Escola Jandyra" class="brand-mark h-16 w-16 shrink-0 object-contain" />
-        <p class="brand-title">Mural Interativo do Jandyra</p>
+        <p class="brand-title">Mural Interativo do <span class="brand-break">Jandyra</span></p>
       </div>
     </div>
   </header>
@@ -695,7 +709,7 @@
 
     // Versão do app: deve ser igual ao conteúdo de version.txt.
     // A cada publicação, atualize os dois para os clientes se auto-atualizarem.
-    const APP_VERSION = '2026-11-17-6';
+    const APP_VERSION = '2026-11-18-1';
 
     // Coleção pública do Firestore
     const getCardsCollection = () => collection(db, 'artifacts', appId, 'public', 'data', 'mural_cards');
