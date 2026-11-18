@@ -499,15 +499,6 @@
           </h2>
           <p class="text-xs mt-1" style="color: var(--muted)">Recado interno. Só a equipe e o proprietário veem esta aba.</p>
         </div>
-        <div id="owner-tools" class="hidden flex-wrap items-center gap-2">
-          <button onclick="exportData()" class="paper-surface px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
-            <i class="fa-solid fa-download"></i> Exportar JSON
-          </button>
-          <label class="paper-surface px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition">
-            <i class="fa-solid fa-upload"></i> Importar JSON
-            <input type="file" id="import-file" accept=".json" class="hidden" onchange="importData(event)" />
-          </label>
-        </div>
       </div>
 
       <button type="button" id="open-recado-form" onclick="openComposer('recados')" class="school-btn self-start px-4 py-2 rounded-xl text-sm font-extrabold">
@@ -708,7 +699,7 @@
 
     // Versão do app: deve ser igual ao conteúdo de version.txt.
     // A cada publicação, atualize os dois para os clientes se auto-atualizarem.
-    const APP_VERSION = '2026-11-17-2';
+    const APP_VERSION = '2026-11-17-3';
 
     // Coleção pública do Firestore
     const getCardsCollection = () => collection(db, 'artifacts', appId, 'public', 'data', 'mural_cards');
@@ -1126,7 +1117,6 @@
       const onRecados = selectedBoard === 'recados' && canSeeRecados();
       const onPublicBoard = selectedBoard === 'atividades' || selectedBoard === 'conquistas';
       setShown(document.getElementById('admin-tools-panel'), onRecados, 'flex');
-      setShown(document.getElementById('owner-tools'), onRecados && currentRole === 'proprietario', 'flex');
       setShown(document.getElementById('publisher-panel'), onPublicBoard && canPublishPublic(), 'flex');
       setShown(document.getElementById('tab-recados'), canSeeRecados(), '');
 
