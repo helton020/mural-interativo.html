@@ -46,7 +46,10 @@ service cloud.firestore {
       return signedIn() && email() in [
         '00001204172493sp@al.educacao.sp.gov.br',
         '00001204012921sp@al.educacao.sp.gov.br',
-        '00001204963733sp@al.educacao.sp.gov.br'
+        '00001204963733sp@al.educacao.sp.gov.br',
+        '00001204470169sp@al.educacao.sp.gov.br',
+        '00001156741130sp@al.educacao.sp.gov.br',
+        '00001160038429sp@al.educacao.sp.gov.br'
       ];
     }
 
